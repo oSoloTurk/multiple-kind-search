@@ -1,0 +1,93 @@
+[
+  {
+    "id": "news_001",
+    "content": "Artificial intelligence continues to evolve at a rapid pace, with researchers making significant breakthroughs in machine learning and neural networks. This comprehensive analysis explores the latest developments in AI technology, their potential applications, and implications for various industries. The article examines recent advances in natural language processing, computer vision, and autonomous systems.",
+    "author_id": "auth_001",
+    "created_at": "2023-06-01T10:00:00Z",
+    "updated_at": "2023-06-01T10:00:00Z",
+    "tags": ["technology", "artificial intelligence", "research"],
+    "image_url": "https://example.com/images/ai-future.jpg"
+  },
+  {
+    "id": "news_002",
+    "content": "In a landmark deal that's reshaping the technology landscape, this investigative piece reveals the inside story of the year's biggest tech acquisition. The article explores the strategic motivations, negotiations, and potential market impacts, featuring exclusive interviews with key stakeholders and industry analysts.",
+    "author_id": "auth_002",
+    "created_at": "2023-06-02T09:30:00Z",
+    "updated_at": "2023-06-02T09:30:00Z",
+    "tags": ["technology", "business", "acquisition"],
+    "image_url": "https://example.com/images/tech-acquisition.jpg"
+  },
+  {
+    "id": "news_003",
+    "content": "Recent satellite data reveals alarming rates of ice loss in Antarctica, surpassing previous climate model predictions. This report analyzes the latest scientific findings, their implications for global sea level rise, and the potential impact on coastal communities worldwide. The article includes expert insights and detailed environmental data visualization.",
+    "author_id": "auth_003",
+    "created_at": "2023-06-03T11:15:00Z",
+    "updated_at": "2023-06-03T11:15:00Z",
+    "tags": ["climate", "environment", "science"],
+    "image_url": "https://example.com/images/antarctica-ice.jpg"
+  },
+  {
+    "id": "news_004",
+    "content": "World leaders have reached a historic agreement on a new international security framework during the latest global summit. This report details the key provisions of the agreement, including cybersecurity cooperation, counter-terrorism measures, and international crisis response protocols.",
+    "author_id": "auth_004",
+    "created_at": "2023-06-04T08:45:00Z",
+    "updated_at": "2023-06-04T08:45:00Z",
+    "tags": ["politics", "international", "security"],
+    "image_url": "https://example.com/images/global-summit.jpg"
+  },
+  {
+    "id": "news_005",
+    "content": "Scientists announce promising results from clinical trials of a novel cancer treatment approach. This article examines the innovative therapy, its mechanism of action, and potential implications for cancer patients. The report includes interviews with leading oncologists and patient testimonials.",
+    "author_id": "auth_005",
+    "created_at": "2023-06-05T14:20:00Z",
+    "updated_at": "2023-06-05T14:20:00Z",
+    "tags": ["health", "medicine", "research"],
+    "image_url": "https://example.com/images/cancer-research.jpg"
+  },
+  {
+    "id": "news_006",
+    "content": "In an unprecedented turn of events, the underdog team has clinched the championship title, marking one of sports' greatest upsets. This analysis breaks down the key moments of their journey, featuring player interviews, statistical analysis, and expert commentary on this historic victory.",
+    "author_id": "auth_006",
+    "created_at": "2023-06-06T19:00:00Z",
+    "updated_at": "2023-06-06T19:00:00Z",
+    "tags": ["sports", "championship"],
+    "image_url": "https://example.com/images/championship.jpg"
+  },
+  {
+    "id": "news_007",
+    "content": "The entertainment industry is experiencing a fundamental transformation as streaming services continue to disrupt traditional media models. This analysis examines how digital platforms are changing content creation, distribution, and consumption patterns in Hollywood.",
+    "author_id": "auth_007",
+    "created_at": "2023-06-07T16:30:00Z",
+    "updated_at": "2023-06-07T16:30:00Z",
+    "tags": ["entertainment", "streaming", "media"],
+    "image_url": "https://example.com/images/streaming-entertainment.jpg"
+  },
+  {
+    "id": "news_008",
+    "content": "A massive cybersecurity breach has exposed sensitive data of millions of users worldwide. This comprehensive report details the extent of the breach, its potential consequences, and expert recommendations for protecting personal information in the digital age.",
+    "author_id": "auth_008",
+    "created_at": "2023-06-08T12:45:00Z",
+    "updated_at": "2023-06-08T12:45:00Z",
+    "tags": ["technology", "cybersecurity", "privacy"],
+    "image_url": "https://example.com/images/cyber-breach.jpg"
+  },
+  {
+    "id": "news_009",
+    "content": "Despite global economic challenges, emerging markets demonstrate remarkable resilience and growth potential. This economic analysis explores the factors contributing to their stability and the opportunities they present for international investors.",
+    "author_id": "auth_009",
+    "created_at": "2023-06-09T10:30:00Z",
+    "updated_at": "2023-06-09T10:30:00Z",
+    "tags": ["economics", "markets", "finance"],
+    "image_url": "https://example.com/images/emerging-markets.jpg"
+  },
+  {
+    "id": "news_010",
+    "content": "Cities worldwide are incorporating cutting-edge technologies to enhance urban living. This report examines how smart city initiatives are revolutionizing infrastructure, transportation, and public services through innovative technological solutions.",
+    "author_id": "auth_010",
+    "created_at": "2023-06-10T13:15:00Z",
+    "updated_at": "2023-06-10T13:15:00Z",
+    "tags": ["technology", "urban planning", "infrastructure"],
+    "image_url": "https://example.com/images/smart-cities.jpg"
+  }
+]
+

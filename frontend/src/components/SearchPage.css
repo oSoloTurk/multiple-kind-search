@@ -81,3 +81,12 @@
   margin-top: 2rem;
   color: #666;
 } 
+
+em {
+  background-color: #fff3cd;
+  padding: 0 2px;
+  border-radius: 2px;
+  font-style: normal;
+  font-weight: bold;
+  color: #856404;
+}
