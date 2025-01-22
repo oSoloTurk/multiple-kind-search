@@ -1,0 +1,33 @@
+.App {
+  min-height: 100vh;
+}
+
+.nav-bar {
+  background-color: #f8f9fa;
+  padding: 1rem;
+  border-bottom: 1px solid #dee2e6;
+}
+
+.nav-bar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  gap: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.nav-bar li {
+  margin: 0;
+}
+
+.nav-bar a {
+  text-decoration: none;
+  color: #007bff;
+  font-weight: 500;
+}
+
+.nav-bar a:hover {
+  color: #0056b3;
+} 

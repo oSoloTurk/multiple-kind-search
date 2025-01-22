@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import './SearchPage.css';
 
 
@@ -6,6 +7,7 @@ const SearchPage: React.FC = () => {
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleSearch = async (searchQuery: string) => {
     setIsLoading(true);
@@ -42,17 +44,19 @@ const SearchPage: React.FC = () => {
         <div className="loading">Loading...</div>
       ) : (
         <div className="results-container">
-          {results.map((result, index) => (
-            <div key={index} className="result-item">
-              {result.title && (
+          {results.map((result) => (
+            <div key={result.id} className="result-item">
+              <div className="result-header">
                 <h3 dangerouslySetInnerHTML={{ __html: result.title }} />
-              )}
-              {result.content && (
-                <p dangerouslySetInnerHTML={{ __html: result.content }} />
-              )}
-              {result.author && (
-                <span className="author">By: {result.author}</span>
-              )}
+                <button 
+                  className="edit-button"
+                  onClick={() => navigate(`/edit/${result.id}`)}
+                >
+                  Edit
+                </button>
+              </div>
+              <div className="author">{result.author}</div>
+              <p dangerouslySetInnerHTML={{ __html: result.content }} />
             </div>
           ))}
         </div>

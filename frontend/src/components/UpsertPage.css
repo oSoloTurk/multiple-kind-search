@@ -1,0 +1,31 @@
+.upsert-page {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .form-group {
+    margin-bottom: 20px;
+  }
+  .form-control {
+    width: 100%;
+    padding: 8px;
+    font-size: 16px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  .editor-container {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    min-height: 400px;
+  }
+  .save-button {
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .save-button:hover {
+    background-color: #0056b3;
+  }
