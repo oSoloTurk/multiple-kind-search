@@ -1,6 +1,43 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import './UpsertPage.css';
+import '@mdxeditor/editor/style.css'
+import {
+  MDXEditor,
+  headingsPlugin,
+  listsPlugin,
+  quotePlugin,
+  thematicBreakPlugin,
+  markdownShortcutPlugin,
+  linkPlugin,
+  linkDialogPlugin,
+  imagePlugin,
+  tablePlugin,
+  codeBlockPlugin,
+  frontmatterPlugin,
+  AdmonitionDirectiveDescriptor,
+  directivesPlugin,
+  diffSourcePlugin,
+  MDXEditorMethods,
+  toolbarPlugin,
+  BlockTypeSelect,
+  BoldItalicUnderlineToggles,
+  CodeToggle,
+  CreateLink,
+  InsertImage,
+  InsertTable,
+  InsertThematicBreak,
+  ListsToggle,
+  UndoRedo,
+  InsertCodeBlock,
+  ConditionalContents,
+  InsertFrontmatter,
+  sandpackPlugin,
+  codeMirrorPlugin,
+  KitchenSinkToolbar,
+  InsertAdmonition,
+} from '@mdxeditor/editor';
+
 
 interface Entry {
   id?: string;
@@ -17,6 +54,7 @@ function UpsertPage() {
     content: '',
     author: ''
   });
+  const ref = React.useRef<MDXEditorMethods>(null)
 
   useEffect(() => {
     if (id) {
@@ -60,13 +98,73 @@ function UpsertPage() {
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setEntry(prev => ({
       ...prev,
       [name]: value
     }));
   };
+
+  const handleEditorChange = (content: string) => {
+    setEntry(prev => ({
+      ...prev,
+      content
+    }));
+  };
+
+  // Define markdown plugins
+  const plugins = [
+    headingsPlugin(),
+    listsPlugin(),
+    quotePlugin(),
+    thematicBreakPlugin(),
+    markdownShortcutPlugin(),
+    linkPlugin(),
+    linkDialogPlugin(),
+    imagePlugin(),
+    tablePlugin(),
+    codeBlockPlugin(),
+    frontmatterPlugin(),
+    directivesPlugin({
+      directiveDescriptors: [AdmonitionDirectiveDescriptor],
+    }),
+    diffSourcePlugin(),
+    toolbarPlugin({
+      toolbarContents: () => (
+        <>
+          <UndoRedo />
+          <BlockTypeSelect />
+          <BoldItalicUnderlineToggles />
+          <CodeToggle />
+          <CreateLink />
+          <InsertImage />
+          <InsertTable />
+          <InsertThematicBreak />
+          <ListsToggle />
+          <InsertCodeBlock />
+          <InsertFrontmatter />
+          <InsertAdmonition />
+        </>
+      )
+    }),
+    sandpackPlugin(),
+    codeMirrorPlugin({
+      codeBlockLanguages: {
+        js: 'JavaScript',
+        jsx: 'JavaScript React',
+        ts: 'TypeScript',
+        tsx: 'TypeScript React',
+        python: 'Python',
+        go: 'Go',
+        rust: 'Rust',
+        sql: 'SQL',
+        json: 'JSON',
+        html: 'HTML',
+        css: 'CSS',
+      }
+    }),
+  ];
 
   return (
     <div className="upsert-page">
@@ -99,15 +197,15 @@ function UpsertPage() {
         </div>
 
         <div className="form-group">
-          <label htmlFor="content">Content</label>
-          <textarea
-            id="content"
-            name="content"
-            className="form-control editor-container"
-            value={entry.content}
-            onChange={handleChange}
-            required
-          />
+            <label htmlFor="content">Content</label>
+            <MDXEditor
+                markdown={entry.content}
+                onChange={handleEditorChange}
+                plugins={plugins}
+                contentEditableClassName="mdx-editor-content"
+                ref={ref}
+                className="mdxeditor"
+            />
         </div>
 
         <button type="submit" className="save-button">

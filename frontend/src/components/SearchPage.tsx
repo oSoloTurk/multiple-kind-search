@@ -14,7 +14,11 @@ const SearchPage: React.FC = () => {
     try {
       const response = await fetch(`${process.env.REACT_APP_API_URL}/api/search?q=${encodeURIComponent(searchQuery)}`);
       const data = await response.json();
-      setResults(data);
+      if (data === null) {
+        setResults([]);
+      } else {
+        setResults(data);
+      }
     } catch (error) {
       console.error('Error searching:', error);
     }
@@ -43,6 +47,7 @@ const SearchPage: React.FC = () => {
       {isLoading ? (
         <div className="loading">Loading...</div>
       ) : (
+        results.length > 0 ? (
         <div className="results-container">
           {results.map((result) => (
             <div key={result.id} className="result-item">
@@ -60,7 +65,13 @@ const SearchPage: React.FC = () => {
             </div>
           ))}
         </div>
-      )}
+      ) : (
+        results === null ? (
+          <div className="no-results">No results found</div>
+        ) : (
+          null
+        )
+      ))}
     </div>
   );
 };
