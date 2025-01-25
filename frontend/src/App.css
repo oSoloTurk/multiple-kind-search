@@ -1,10 +1,11 @@
 .App {
   min-height: 100vh;
-  background-color: #f8f9fa;
+  background-color: #222831; /* Dark Blue */
+  color: #FFFFFF; /* White text */
 }
 
 .nav-bar {
-  background-color: white;
+  background-color: #393E46; /* Dark Gray */
   padding: 1rem;
   border-bottom: 1px solid #dee2e6;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
@@ -29,7 +30,7 @@
 
 .nav-bar a {
   text-decoration: none;
-  color: #6c757d;
+  color: #00ADB5; /* Cyan */
   font-weight: 500;
   padding: 0.5rem 1rem;
   border-radius: 4px;
@@ -37,11 +38,11 @@
 }
 
 .nav-bar a:hover {
-  color: #007bff;
-  background-color: #f8f9fa;
+  color: #007bff; /* Bright Blue */
+  background-color: #f8f9fa; /* Light background on hover */
 }
 
 .nav-bar a.active {
-  color: #007bff;
-  background-color: #e9ecef;
+  color: #007bff; /* Bright Blue */
+  background-color: #e9ecef; /* Light Gray */
 } 

@@ -2,6 +2,7 @@ import React from 'react';
 import { useParams, Navigate } from 'react-router-dom';
 import NewsUpsertPage from './NewsUpsertPage';
 import AuthorUpsertPage from './AuthorUpsertPage';
+import { Container } from '@mui/material';
 
 type EntityType = 'news' | 'authors';
 

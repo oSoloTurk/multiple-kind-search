@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { TextField, Button, CircularProgress } from '@mui/material';
 import './SearchPage.css';
 import { searchApi, SearchResult } from '../api/api';
 
@@ -36,30 +37,31 @@ const SearchPage: React.FC = () => {
     <div className="search-container">
       <h1>News Search</h1>
       <div className="search-box">
-        <input
-          type="text"
+        <TextField
+          variant="outlined"
           value={username}
           onChange={(e) => setUsername(e.target.value)}
           placeholder="Enter username..."
           className="search-input"
         />
-        <input
-          type="text"
+        <TextField
+          variant="outlined"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Search for news..."
           className="search-input"
         />
-        <button 
+        <Button 
+          variant="contained" 
+          color="primary" 
           onClick={() => handleSearch(query)}
-          className="search-button"
         >
           Search
-        </button>
+        </Button>
       </div>
 
       {isLoading ? (
-        <div className="loading">Loading...</div>
+        <CircularProgress />
       ) : (
         results.length > 0 ? (
         <div className="results-container">
@@ -69,13 +71,13 @@ const SearchPage: React.FC = () => {
                 <div className="author-card">
                   <h2 dangerouslySetInnerHTML={{ __html: result.title }} />
                   <p  dangerouslySetInnerHTML={{ __html: result.content }} />
-                  <button onClick={() => handleEdit(result)}>Edit Author</button>
+                  <Button onClick={() => handleEdit(result)}>Edit Author</Button>
                 </div>
               ) : (
                 <div className="news-card">
                   <h2 dangerouslySetInnerHTML={{ __html: result.title }} />
                   <p  dangerouslySetInnerHTML={{ __html: result.content }} />
-                  <button onClick={() => handleEdit(result)}>Edit News</button>
+                  <Button onClick={() => handleEdit(result)}>Edit News</Button>
                 </div>
               )}
             </div>

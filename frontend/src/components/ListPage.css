@@ -1,7 +1,14 @@
+body {
+  background-color: #222831; /* Dark Blue */
+  color: #FFFFFF; /* White text */
+}
+
 .list-page {
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem;
+  background-color: #222831; /* Dark Blue */
+  color: #EEEEEE; /* Light Gray */
 }
 
 .list-header {
@@ -96,7 +103,13 @@
 
 .loading {
   text-align: center;
-  color: #6c757d;
+  color: #00ADB5; /* Teal */
   font-size: 1.2rem;
   margin-top: 2rem;
-} 
+}
+
+.search-input::placeholder {
+  color: #AAAAAA; /* Light Gray for placeholder text */
+}
+
+/* Add other styles as needed, ensuring to use the new color palette */ 

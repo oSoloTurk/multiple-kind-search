@@ -2,6 +2,8 @@
     max-width: 1200px;
     margin: 0 auto;
     padding: 2rem;
+    background-color: #222831; /* Dark Blue */
+    color: #EEEEEE; /* Light Gray */
   }
   .form-group {
     margin-bottom: 1.5rem;

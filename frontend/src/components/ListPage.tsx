@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { newsApi, authorApi, News, Author } from '../api/api';
+import { Button, CircularProgress } from '@mui/material';
 import './ListPage.css';
 
 type EntityType = 'news' | 'authors';
@@ -65,19 +66,18 @@ const ListPage: React.FC = () => {
     <div className="list-page">
       <div className="list-header">
         <h1>{type.charAt(0).toUpperCase() + type.slice(1)} List</h1>
-        <button className="create-button" onClick={handleCreate}>
+        <Button variant="contained" color="primary" onClick={handleCreate}>
           Create New {type === 'news' ? 'Article' : 'Author'}
-        </button>
+        </Button>
       </div>
 
       {loading ? (
-        <div className="loading">Loading...</div>
+        <CircularProgress />
       ) : (
         <div className="items-grid">
           {items.map((item) => (
             <div key={item.id} className="item-card">
               {type === 'news' ? (
-                // News card
                 <>
                   <h3>{(item as News).title}</h3>
                   <div className="item-preview">
@@ -85,7 +85,6 @@ const ListPage: React.FC = () => {
                   </div>
                 </>
               ) : (
-                // Author card
                 <>
                   <h3>{(item as Author).name}</h3>
                   {(item as Author).imageUrl && (
@@ -101,18 +100,20 @@ const ListPage: React.FC = () => {
                 </>
               )}
               <div className="item-actions">
-                <button 
-                  className="edit-button"
+                <Button 
+                  variant="contained" 
+                  color="primary" 
                   onClick={() => handleEdit(item.id!)}
                 >
                   Edit
-                </button>
-                <button 
-                  className="delete-button"
+                </Button>
+                <Button 
+                  variant="contained" 
+                  color="secondary" 
                   onClick={() => handleDelete(item.id!)}
                 >
                   Delete
-                </button>
+                </Button>
               </div>
             </div>
           ))}

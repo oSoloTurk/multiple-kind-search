@@ -1,7 +1,14 @@
+body {
+  background-color: #222831; /* Dark Blue */
+  color: #FFFFFF; /* White text */
+}
+
 .search-container {
   max-width: 800px;
   margin: 0 auto;
   padding: 2rem;
+  background-color: #222831; /* Dark Blue */
+  color: #EEEEEE; /* Light Gray */
 }
 
 .search-box {
@@ -12,10 +19,16 @@
 
 .search-input {
   flex: 1;
+  background-color: #393E46; /* Dark Gray */
+  color: #EEEEEE; /* Light Gray */
   padding: 0.5rem;
   font-size: 1rem;
   border: 1px solid #ccc;
   border-radius: 4px;
+}
+
+.search-input::placeholder {
+  color: #AAAAAA; /* Light Gray for placeholder text */
 }
 
 .search-button {
@@ -111,3 +124,9 @@ em {
 .edit-button:hover {
   background-color: #5a6268;
 }
+
+.no-results {
+  color: #00ADB5; /* Teal */
+}
+
+/* Add other styles as needed, ensuring to use the new color palette */
