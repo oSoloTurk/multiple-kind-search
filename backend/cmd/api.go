@@ -105,7 +105,7 @@ func runAPI(cmd *cobra.Command, args []string) {
 	news.Put("/:id", newsHandler.Update)
 	news.Delete("/:id", newsHandler.Delete)
 
-	logger.Logger.Info().Msgf("Starting 1 on port %s", cfg.ServerPort)
+	logger.Logger.Info().Msgf("Starting API on port %s", cfg.ServerPort)
 	if err := app.Listen(":" + cfg.ServerPort); err != nil {
 		logger.Logger.Fatal().Err(err).Msg("Server failed to start")
 	}
