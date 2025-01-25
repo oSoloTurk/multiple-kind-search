@@ -37,14 +37,7 @@ import {
   KitchenSinkToolbar,
   InsertAdmonition,
 } from '@mdxeditor/editor';
-
-
-interface Entry {
-  id?: string;
-  title: string;
-  content: string;
-  author: string;
-}
+import { entriesApi, Entry } from '../api/api';
 
 function UpsertPage() {
   const { id } = useParams();
@@ -65,11 +58,8 @@ function UpsertPage() {
 
   const fetchEntry = async (entryId: string) => {
     try {
-      const response = await fetch(`/api/entries/${entryId}`);
-      if (response.ok) {
-        const data = await response.json();
-        setEntry(data);
-      }
+      const data = await entriesApi.getEntry(entryId);
+      setEntry(data);
     } catch (error) {
       console.error('Error fetching entry:', error);
     }
@@ -78,21 +68,13 @@ function UpsertPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    const url = id ? `/api/entries/${id}` : '/api/entries';
-    const method = id ? 'PUT' : 'POST';
-
     try {
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(entry),
-      });
-
-      if (response.ok) {
-        navigate('/');
+      if (id) {
+        await entriesApi.updateEntry(id, entry);
+      } else {
+        await entriesApi.createEntry(entry);
       }
+      navigate('/');
     } catch (error) {
       console.error('Error saving entry:', error);
     }

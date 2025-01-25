@@ -1,26 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './SearchPage.css';
+import { entriesApi, Entry } from '../api/api';
 
 
 const SearchPage: React.FC = () => {
   const [query, setQuery] = useState('');
-  const [results, setResults] = useState<any[]>([]);
+  const [results, setResults] = useState<Entry[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSearch = async (searchQuery: string) => {
     setIsLoading(true);
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/search?q=${encodeURIComponent(searchQuery)}`);
-      const data = await response.json();
-      if (data === null) {
-        setResults([]);
-      } else {
-        setResults(data);
-      }
+      const data = await entriesApi.searchEntries(searchQuery);
+      setResults(data || []);
     } catch (error) {
       console.error('Error searching:', error);
+      setResults([]);
     }
     setIsLoading(false);
   };
