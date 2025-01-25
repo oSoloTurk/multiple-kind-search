@@ -1,11 +1,16 @@
 .App {
   min-height: 100vh;
+  background-color: #f8f9fa;
 }
 
 .nav-bar {
-  background-color: #f8f9fa;
+  background-color: white;
   padding: 1rem;
   border-bottom: 1px solid #dee2e6;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
 
 .nav-bar ul {
@@ -14,7 +19,7 @@
   margin: 0;
   display: flex;
   gap: 2rem;
-  max-width: 800px;
+  max-width: 1200px;
   margin: 0 auto;
 }
 
@@ -24,10 +29,19 @@
 
 .nav-bar a {
   text-decoration: none;
-  color: #007bff;
+  color: #6c757d;
   font-weight: 500;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  transition: all 0.2s ease;
 }
 
 .nav-bar a:hover {
-  color: #0056b3;
+  color: #007bff;
+  background-color: #f8f9fa;
+}
+
+.nav-bar a.active {
+  color: #007bff;
+  background-color: #e9ecef;
 } 

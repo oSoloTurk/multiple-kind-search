@@ -37,31 +37,56 @@ import {
   KitchenSinkToolbar,
   InsertAdmonition,
 } from '@mdxeditor/editor';
-import { entriesApi, Entry } from '../api/api';
+import { newsApi, authorApi, News, Author } from '../api/api';
+
+type EntityType = 'news' | 'authors';
 
 function UpsertPage() {
-  const { id } = useParams();
+  const { type, id } = useParams<{ type: EntityType; id: string }>();
   const navigate = useNavigate();
-  const [entry, setEntry] = useState<Entry>({
+  const [news, setNews] = useState<News>({
     title: '',
     content: '',
-    author: ''
+    authorId: '',
+    tags: [],
   });
+  const [author, setAuthor] = useState<Author>({
+    name: '',
+    bio: '',
+    imageUrl: '',
+  });
+  const [availableAuthors, setAvailableAuthors] = useState<Author[]>([]);
   const ref = React.useRef<MDXEditorMethods>(null)
 
   useEffect(() => {
-    if (id) {
-      // Fetch entry if we're editing an existing one
-      fetchEntry(id);
+    if (type === 'news') {
+      loadAuthors();
     }
-  }, [id]);
+    if (id) {
+      fetchEntity();
+    }
+  }, [id, type]);
 
-  const fetchEntry = async (entryId: string) => {
+  const loadAuthors = async () => {
     try {
-      const data = await entriesApi.getEntry(entryId);
-      setEntry(data);
+      const authors = await authorApi.listAuthors();
+      setAvailableAuthors(authors);
     } catch (error) {
-      console.error('Error fetching entry:', error);
+      console.error('Error loading authors:', error);
+    }
+  };
+
+  const fetchEntity = async () => {
+    try {
+      if (type === 'news' && id) {
+        const data = await newsApi.getNews(id);
+        setNews(data);
+      } else if (type === 'authors' && id) {
+        const data = await authorApi.getAuthor(id);
+        setAuthor(data);
+      }
+    } catch (error) {
+      console.error('Error fetching entity:', error);
     }
   };
 
@@ -69,30 +94,53 @@ function UpsertPage() {
     e.preventDefault();
     
     try {
-      if (id) {
-        await entriesApi.updateEntry(id, entry);
-      } else {
-        await entriesApi.createEntry(entry);
+      if (type === 'news') {
+        if (id) {
+          await newsApi.updateNews(id, news);
+        } else {
+          await newsApi.createNews(news);
+        }
+      } else if (type === 'authors') {
+        if (id) {
+          await authorApi.updateAuthor(id, author);
+        } else {
+          await authorApi.createAuthor(author);
+        }
       }
       navigate('/');
     } catch (error) {
-      console.error('Error saving entry:', error);
+      console.error('Error saving:', error);
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleNewsChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setEntry(prev => ({
+    setNews(prev => ({
       ...prev,
       [name]: value
     }));
   };
 
-  const handleEditorChange = (content: string) => {
-    setEntry(prev => ({
+  const handleAuthorChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setAuthor(prev => ({
       ...prev,
-      content
+      [name]: value
     }));
+  };
+
+  const handleContentChange = (content: string) => {
+    if (type === 'news') {
+      setNews(prev => ({
+        ...prev,
+        content
+      }));
+    } else if (type === 'authors') {
+      setAuthor(prev => ({
+        ...prev,
+        bio: content
+      }));
+    }
   };
 
   // Define markdown plugins
@@ -148,50 +196,102 @@ function UpsertPage() {
     }),
   ];
 
+  if (!type) {
+    return <div>Invalid entity type</div>;
+  }
+
   return (
     <div className="upsert-page">
-      <h1>{id ? 'Edit Entry' : 'Create New Entry'}</h1>
+      <h1>{id ? `Edit ${type}` : `Create New ${type}`}</h1>
       <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label htmlFor="title">Title</label>
-          <input
-            type="text"
-            id="title"
-            name="title"
-            className="form-control"
-            value={entry.title}
-            onChange={handleChange}
-            required
-          />
-        </div>
+        {type === 'news' ? (
+          <>
+            <div className="form-group">
+              <label htmlFor="title">Title</label>
+              <input
+                type="text"
+                id="title"
+                name="title"
+                className="form-control"
+                value={news.title}
+                onChange={handleNewsChange}
+                required
+              />
+            </div>
 
-        <div className="form-group">
-          <label htmlFor="author">Author</label>
-          <input
-            type="text"
-            id="author"
-            name="author"
-            className="form-control"
-            value={entry.author}
-            onChange={handleChange}
-            required
-          />
-        </div>
+            <div className="form-group">
+              <label htmlFor="authorId">Author</label>
+              <select
+                id="authorId"
+                name="authorId"
+                className="form-control"
+                value={news.authorId}
+                onChange={handleNewsChange}
+                required
+              >
+                <option value="">Select an author</option>
+                {availableAuthors.map(author => (
+                  <option key={author.id} value={author.id}>
+                    {author.name}
+                  </option>
+                ))}
+              </select>
+            </div>
 
-        <div className="form-group">
-            <label htmlFor="content">Content</label>
-            <MDXEditor
-                markdown={entry.content}
-                onChange={handleEditorChange}
+            <div className="form-group">
+              <label htmlFor="content">Content</label>
+              <MDXEditor
+                markdown={news.content}
+                onChange={handleContentChange}
                 plugins={plugins}
                 contentEditableClassName="mdx-editor-content"
                 ref={ref}
                 className="mdxeditor"
-            />
-        </div>
+              />
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="form-group">
+              <label htmlFor="name">Name</label>
+              <input
+                type="text"
+                id="name"
+                name="name"
+                className="form-control"
+                value={author.name}
+                onChange={handleAuthorChange}
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="bio">Bio</label>
+              <MDXEditor
+                markdown={author.bio || ''}
+                onChange={handleContentChange}
+                plugins={plugins}
+                contentEditableClassName="mdx-editor-content"
+                className="mdxeditor"
+              />
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="imageUrl">Image URL</label>
+              <input
+                type="url"
+                id="imageUrl"
+                name="imageUrl"
+                className="form-control"
+                value={author.imageUrl}
+                onChange={handleAuthorChange}
+              />
+            </div>
+          </>
+        )}
 
         <button type="submit" className="save-button">
-          {id ? 'Update' : 'Save'} Entry
+          {id ? 'Update' : 'Save'} {type}
         </button>
       </form>
     </div>
