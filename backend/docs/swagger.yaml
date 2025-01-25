@@ -1,126 +1,42 @@
 definitions:
-  main.Entry:
+  domain.News:
     properties:
-      author:
+      author_id:
         type: string
       content:
         type: string
+      created_at:
+        type: string
       id:
         type: string
+      image_url:
+        type: string
+      tags:
+        items:
+          type: string
+        type: array
       title:
+        type: string
+      updated_at:
         type: string
     type: object
 info:
   contact: {}
 paths:
-  /api/entries:
-    post:
-      consumes:
-      - application/json
-      description: Create a new entry with the provided data
-      parameters:
-      - description: Entry object
-        in: body
-        name: entry
-        required: true
-        schema:
-          $ref: '#/definitions/main.Entry'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/main.Entry'
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      summary: Create a new entry
-      tags:
-      - entries
-  /api/entries/{id}:
-    get:
-      consumes:
-      - application/json
-      description: Get a single entry by its ID
-      parameters:
-      - description: Entry ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/main.Entry'
-        "404":
-          description: Not Found
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      summary: Get an entry by ID
-      tags:
-      - entries
-    put:
-      consumes:
-      - application/json
-      description: Update an entry by its ID with the provided data
-      parameters:
-      - description: Entry ID
-        in: path
-        name: id
-        required: true
-        type: string
-      - description: Entry object
-        in: body
-        name: entry
-        required: true
-        schema:
-          $ref: '#/definitions/main.Entry'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/main.Entry'
-        "400":
-          description: Bad Request
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-        "500":
-          description: Internal Server Error
-          schema:
-            additionalProperties:
-              type: string
-            type: object
-      summary: Update an existing entry
-      tags:
-      - entries
   /api/search:
     get:
       consumes:
       - application/json
-      description: Search entries by query string
+      description: Search news content with boosted results for specified author
       parameters:
       - description: Search query
         in: query
         name: q
+        required: true
+        type: string
+      - description: Author username to boost results for
+        in: query
+        name: username
         required: true
         type: string
       produces:
@@ -130,7 +46,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/main.Entry'
+              $ref: '#/definitions/domain.News'
             type: array
         "400":
           description: Bad Request
@@ -144,7 +60,7 @@ paths:
             additionalProperties:
               type: string
             type: object
-      summary: Search entries
+      summary: Search news with author boosting
       tags:
       - search
 swagger: "2.0"

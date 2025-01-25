@@ -97,3 +97,61 @@ func (r *newsRepository) List() ([]domain.News, error) {
 
 	return newsList, nil
 }
+
+func (r *newsRepository) Search(query string, username string) ([]domain.News, error) {
+	// Get author by username first
+	authorResult, err := r.client.Search().
+		Index("authors").
+		Query(elastic.NewMatchQuery("name", username)).
+		Size(1).
+		Do(context.Background())
+
+	var authorID string
+	if err == nil && len(authorResult.Hits.Hits) > 0 {
+		var author struct {
+			ID string `json:"id"`
+		}
+		if err := json.Unmarshal(authorResult.Hits.Hits[0].Source, &author); err == nil {
+			authorID = author.ID
+		}
+	}
+
+	// Build the search query
+	multiMatchQuery := elastic.NewMultiMatchQuery(query, "title", "content").
+		Type("best_fields").
+		TieBreaker(0.3)
+
+	// Create a function score query to boost author's content
+	functionScoreQuery := elastic.NewFunctionScoreQuery().
+		Query(multiMatchQuery)
+
+	if authorID != "" {
+		// Boost score by 2.0 if the author matches
+		functionScoreQuery.Add(
+			elastic.NewTermQuery("author_id", authorID),
+			elastic.NewWeightFactorFunction(2.0),
+		)
+	}
+
+	// Execute the search
+	result, err := r.client.Search().
+		Index(newsIndex).
+		Query(functionScoreQuery).
+		Size(1000).
+		Do(context.Background())
+
+	if err != nil {
+		return nil, err
+	}
+
+	newsList := make([]domain.News, 0)
+	for _, hit := range result.Hits.Hits {
+		var news domain.News
+		if err := json.Unmarshal(hit.Source, &news); err != nil {
+			return nil, err
+		}
+		newsList = append(newsList, news)
+	}
+
+	return newsList, nil
+}

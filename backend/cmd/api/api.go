@@ -54,6 +54,7 @@ func runAPI(cmd *cobra.Command, args []string) {
 	// Initialize handlers
 	authorHandler := handler.NewAuthorHandler(authorService)
 	newsHandler := handler.NewNewsHandler(newsService)
+	searchHandler := handler.NewSearchHandler(newsService)
 
 	// Initialize Fiber app
 	app := fiber.New()
@@ -81,6 +82,10 @@ func runAPI(cmd *cobra.Command, args []string) {
 	// Routes
 	api := app.Group("/api")
 
+	// Search routes
+	api.Get("/search", searchHandler.Search)
+
+	// Domain routes
 	authors := api.Group("/authors")
 	authors.Post("/", authorHandler.Create)
 	authors.Get("/", authorHandler.List)
