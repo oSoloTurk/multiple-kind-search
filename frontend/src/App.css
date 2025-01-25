@@ -12,6 +12,9 @@
   position: sticky;
   top: 0;
   z-index: 1000;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .nav-bar ul {
@@ -35,6 +38,9 @@
   padding: 0.5rem 1rem;
   border-radius: 4px;
   transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .nav-bar a:hover {
@@ -46,3 +52,10 @@
   color: #007bff; /* Bright Blue */
   background-color: #e9ecef; /* Light Gray */
 } 
+
+.search-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 1rem;
+}

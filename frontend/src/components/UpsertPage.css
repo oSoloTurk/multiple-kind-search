@@ -2,8 +2,8 @@
     max-width: 1200px;
     margin: 0 auto;
     padding: 2rem;
-    background-color: #222831; /* Dark Blue */
-    color: #EEEEEE; /* Light Gray */
+    background-color: #1e1e1e; /* Dark Paper Background */
+    color: #EEEEEE; /* Light Gray Text */
   }
   .form-group {
     margin-bottom: 1.5rem;
@@ -12,19 +12,21 @@
     display: block;
     margin-bottom: 0.5rem;
     font-weight: 500;
-    color: #2c3e50;
+    color: #ffffff; /* White text */
   }
   .form-control {
     width: 100%;
     padding: 0.5rem;
     font-size: 1rem;
-    border: 1px solid #ddd;
+    border: 1px solid #444444;
     border-radius: 4px;
     transition: border-color 0.2s ease;
+    background-color: #2e2e2e;
+    color: #ffffff;
   }
   .form-control:focus {
     outline: none;
-    border-color: #007bff;
+    border-color: #bb86fc;
   }
   .mdxeditor {
     border: 1px solid #ddd !important;
@@ -91,16 +93,16 @@
     transition: background-color 0.2s ease;
   }
   .save-button {
-    background-color: #28a745;
+    background-color: #bb86fc;
     color: white;
   }
   .save-button:hover {
-    background-color: #218838;
+    background-color: #9b59b6;
   }
   .cancel-button {
-    background-color: #6c757d;
+    background-color: #03dac6;
     color: white;
   }
   .cancel-button:hover {
-    background-color: #5a6268;
+    background-color: #00bfa5;
   }
