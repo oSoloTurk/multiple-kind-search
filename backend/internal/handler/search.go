@@ -7,11 +7,11 @@ import (
 )
 
 type SearchHandler struct {
-	newsService domain.NewsService
+	searchService domain.SearchService
 }
 
-func NewSearchHandler(newsService domain.NewsService) *SearchHandler {
-	return &SearchHandler{newsService: newsService}
+func NewSearchHandler(searchService domain.SearchService) *SearchHandler {
+	return &SearchHandler{searchService: searchService}
 }
 
 // Search godoc
@@ -22,7 +22,7 @@ func NewSearchHandler(newsService domain.NewsService) *SearchHandler {
 // @Produce json
 // @Param q query string true "Search query"
 // @Param username query string true "Author username to boost results for"
-// @Success 200 {array} domain.News
+// @Success 200 {array} domain.SearchResult
 // @Failure 400 {object} map[string]string
 // @Failure 500 {object} map[string]string
 // @Router /api/search [get]
@@ -48,7 +48,10 @@ func (h *SearchHandler) Search(c *fiber.Ctx) error {
 		Str("username", username).
 		Msg("Processing search request")
 
-	news, err := h.newsService.Search(query, username)
+	results, err := h.searchService.Search(c.UserContext(), domain.SearchFilter{
+		Query:    query,
+		Username: username,
+	})
 	if err != nil {
 		logger.Logger.Error().
 			Err(err).
@@ -63,8 +66,8 @@ func (h *SearchHandler) Search(c *fiber.Ctx) error {
 	logger.Logger.Info().
 		Str("query", query).
 		Str("username", username).
-		Int("results", len(news)).
+		Int("results", len(results)).
 		Msg("Search completed successfully")
 
-	return c.JSON(news)
+	return c.JSON(results)
 }

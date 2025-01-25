@@ -41,7 +41,6 @@ type NewsRepository interface {
 	Update(news *News) error
 	Delete(id string) error
 	List() ([]News, error)
-	Search(query string, username string) ([]News, error)
 }
 
 type NewsService interface {
@@ -50,5 +49,4 @@ type NewsService interface {
 	Update(news *News) error
 	Delete(id string) error
 	List() ([]News, error)
-	Search(query string, username string) ([]News, error)
 }

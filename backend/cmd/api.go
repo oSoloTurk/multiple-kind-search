@@ -48,15 +48,17 @@ func runAPI(cmd *cobra.Command, args []string) {
 	// Initialize repositories
 	authorRepo := elasticsearch.NewAuthorRepository(esClient)
 	newsRepo := elasticsearch.NewNewsRepository(esClient)
+	searchRepo := elasticsearch.NewSearchRepository(esClient)
 
 	// Initialize services
 	authorService := service.NewAuthorService(authorRepo)
 	newsService := service.NewNewsService(newsRepo)
+	searchService := service.NewSearchService(searchRepo)
 
 	// Initialize handlers
 	authorHandler := handler.NewAuthorHandler(authorService)
 	newsHandler := handler.NewNewsHandler(newsService)
-	searchHandler := handler.NewSearchHandler(newsService)
+	searchHandler := handler.NewSearchHandler(searchService)
 
 	// Initialize Fiber app
 	app := fiber.New()

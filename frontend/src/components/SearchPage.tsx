@@ -19,7 +19,8 @@ const SearchPage: React.FC = () => {
     setIsLoading(true);
     try {
       const data = await searchApi.search({ q: searchQuery, username });
-      setResults(data || []);
+      // Filter only news results
+      setResults((data || []))
     } catch (error) {
       console.error('Error searching:', error);
       setResults([]);
@@ -28,13 +29,12 @@ const SearchPage: React.FC = () => {
   };
 
   const handleEdit = (result: SearchResult) => {
-    const path = result.type === 'author' ? 'authors' : 'news';
-    navigate(`/edit/${path}/${result.id}`);
+    navigate(`/edit/news/${result.id}`);
   };
 
   return (
     <div className="search-container">
-      <h1>Multiple Kind Search</h1>
+      <h1>News Search</h1>
       <div className="search-box">
         <input
           type="text"
@@ -47,7 +47,7 @@ const SearchPage: React.FC = () => {
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search for news or authors..."
+          placeholder="Search for news..."
           className="search-input"
         />
         <button 
@@ -63,33 +63,21 @@ const SearchPage: React.FC = () => {
       ) : (
         results.length > 0 ? (
         <div className="results-container">
-          {results.map((result) => (
-            <div key={result.id} className="result-item">
-              <div className="result-header">
-                <h3>{result.title || result.author}</h3>
-                <div className="result-type">{result.type}</div>
-                <button 
-                  className="edit-button"
-                  onClick={() => handleEdit(result)}
-                >
-                  Edit
-                </button>
-              </div>
-              {result.content && (
-                <div className="content" dangerouslySetInnerHTML={{ 
-                  __html: result.highlights?.content?.[0] || result.content 
-                }} />
+          {results.map((result: SearchResult) => (
+            <div key={result.id} className="result-card">
+              {result.type === 'author' ? (
+                <div className="author-card">
+                  <h2 dangerouslySetInnerHTML={{ __html: result.title }} />
+                  <p  dangerouslySetInnerHTML={{ __html: result.content }} />
+                  <button onClick={() => handleEdit(result)}>Edit Author</button>
+                </div>
+              ) : (
+                <div className="news-card">
+                  <h2 dangerouslySetInnerHTML={{ __html: result.title }} />
+                  <p  dangerouslySetInnerHTML={{ __html: result.content }} />
+                  <button onClick={() => handleEdit(result)}>Edit News</button>
+                </div>
               )}
-              {result.highlights && Object.entries(result.highlights).map(([field, highlights]) => (
-                field !== 'content' && (
-                  <div key={field} className="highlight">
-                    <strong>{field}:</strong>
-                    {highlights.map((highlight, i) => (
-                      <div key={i} dangerouslySetInnerHTML={{ __html: highlight }} />
-                    ))}
-                  </div>
-                )
-              ))}
             </div>
           ))}
         </div>

@@ -37,7 +37,3 @@ func (s *newsService) Delete(id string) error {
 func (s *newsService) List() ([]domain.News, error) {
 	return s.repo.List()
 }
-
-func (s *newsService) Search(query string, username string) ([]domain.News, error) {
-	return s.repo.Search(query, username)
-}

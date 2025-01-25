@@ -18,11 +18,10 @@ export interface News {
 
 export interface SearchResult {
   id: string;
-  title?: string;
-  content?: string;
-  author?: string;
+  title: string;
+  content: string;
+  score: number;
   type: string;
-  highlights?: Record<string, string[]>;
 }
 
 export const newsApi = {
