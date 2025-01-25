@@ -47,7 +47,7 @@ function UpsertPage() {
   const [news, setNews] = useState<News>({
     title: '',
     content: '',
-    authorId: '',
+    authorID: '',
     tags: [],
     imageUrl: ''
   });
@@ -263,7 +263,7 @@ function UpsertPage() {
                 id="authorId"
                 name="authorId"
                 className="form-control"
-                value={news.authorId}
+                value={news.authorID}
                 onChange={handleNewsChange}
                 required
               >

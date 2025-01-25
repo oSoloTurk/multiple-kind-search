@@ -15,11 +15,11 @@ type News struct {
 	ID        string    `json:"id"`
 	Title     string    `json:"title"`
 	Content   string    `json:"content"`
-	AuthorID  string    `json:"author_id"`
+	AuthorID  string    `json:"authorID"`
 	Tags      []string  `json:"tags,omitempty"`
-	ImageURL  string    `json:"image_url,omitempty"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ImageURL  string    `json:"imageUrl,omitempty"`
+	CreatedAt time.Time `json:"createdAt"`
+	UpdatedAt time.Time `json:"updatedAt"`
 }
 
 func (n *News) Validate() error {
