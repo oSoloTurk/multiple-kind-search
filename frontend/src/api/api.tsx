@@ -78,9 +78,9 @@ export const authorApi = {
 };
 
 export const searchApi = {
-  search: async (query: string) => {
+  search: async ({ q, username }: { q: string; username: string }) => {
     const response = await axios.get<SearchResult[]>('/api/search', {
-      params: { q: query }
+      params: { q, username }
     });
     return response.data;
   }

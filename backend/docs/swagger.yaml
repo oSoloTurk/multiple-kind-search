@@ -1,4 +1,19 @@
 definitions:
+  domain.Author:
+    properties:
+      bio:
+        type: string
+      created_at:
+        type: string
+      id:
+        type: string
+      image_url:
+        type: string
+      name:
+        type: string
+      updated_at:
+        type: string
+    type: object
   domain.News:
     properties:
       author_id:
@@ -23,6 +38,296 @@ definitions:
 info:
   contact: {}
 paths:
+  /api/authors:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of all authors
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.Author'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: List all authors
+      tags:
+      - authors
+    post:
+      consumes:
+      - application/json
+      description: Create a new author with the provided details
+      parameters:
+      - description: Author details
+        in: body
+        name: author
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Author'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/domain.Author'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create a new author
+      tags:
+      - authors
+  /api/authors/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete an author by their ID
+      parameters:
+      - description: Author ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete an author
+      tags:
+      - authors
+    get:
+      consumes:
+      - application/json
+      description: Get an author's details by their ID
+      parameters:
+      - description: Author ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Author'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get an author by ID
+      tags:
+      - authors
+    put:
+      consumes:
+      - application/json
+      description: Update an existing author's details
+      parameters:
+      - description: Author ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Updated author details
+        in: body
+        name: author
+        required: true
+        schema:
+          $ref: '#/definitions/domain.Author'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.Author'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update an author
+      tags:
+      - authors
+  /api/news:
+    get:
+      consumes:
+      - application/json
+      description: Get a list of all news articles
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/domain.News'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: List all news articles
+      tags:
+      - news
+    post:
+      consumes:
+      - application/json
+      description: Create a new news article with the provided details
+      parameters:
+      - description: News article details
+        in: body
+        name: news
+        required: true
+        schema:
+          $ref: '#/definitions/domain.News'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/domain.News'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Create a new news article
+      tags:
+      - news
+  /api/news/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a news article by its ID
+      parameters:
+      - description: News ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Delete a news article
+      tags:
+      - news
+    get:
+      consumes:
+      - application/json
+      description: Get a news article's details by its ID
+      parameters:
+      - description: News ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.News'
+        "404":
+          description: Not Found
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get a news article by ID
+      tags:
+      - news
+    put:
+      consumes:
+      - application/json
+      description: Update an existing news article's details
+      parameters:
+      - description: News ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Updated news article details
+        in: body
+        name: news
+        required: true
+        schema:
+          $ref: '#/definitions/domain.News'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/domain.News'
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Update a news article
+      tags:
+      - news
   /api/search:
     get:
       consumes:

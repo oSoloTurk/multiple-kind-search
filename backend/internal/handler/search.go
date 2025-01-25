@@ -3,6 +3,7 @@ package handler
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/oSoloTurk/multiple-kind-search/internal/domain"
+	"github.com/oSoloTurk/multiple-kind-search/internal/logger"
 )
 
 type SearchHandler struct {
@@ -28,6 +29,7 @@ func NewSearchHandler(newsService domain.NewsService) *SearchHandler {
 func (h *SearchHandler) Search(c *fiber.Ctx) error {
 	query := c.Query("q")
 	if query == "" {
+		logger.Logger.Error().Msg("Search query is empty")
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Search query is required",
 		})
@@ -35,17 +37,34 @@ func (h *SearchHandler) Search(c *fiber.Ctx) error {
 
 	username := c.Query("username")
 	if username == "" {
+		logger.Logger.Error().Msg("Username is empty")
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
 			"error": "Username is required",
 		})
 	}
 
+	logger.Logger.Info().
+		Str("query", query).
+		Str("username", username).
+		Msg("Processing search request")
+
 	news, err := h.newsService.Search(query, username)
 	if err != nil {
+		logger.Logger.Error().
+			Err(err).
+			Str("query", query).
+			Str("username", username).
+			Msg("Failed to search news")
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
 			"error": err.Error(),
 		})
 	}
+
+	logger.Logger.Info().
+		Str("query", query).
+		Str("username", username).
+		Int("results", len(news)).
+		Msg("Search completed successfully")
 
 	return c.JSON(news)
 }

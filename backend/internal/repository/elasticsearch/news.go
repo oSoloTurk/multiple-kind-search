@@ -7,6 +7,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/oSoloTurk/multiple-kind-search/internal/domain"
+	"github.com/oSoloTurk/multiple-kind-search/internal/logger"
 	"github.com/olivere/elastic/v7"
 )
 
@@ -28,13 +29,26 @@ func (r *newsRepository) Create(news *domain.News) error {
 	news.CreatedAt = now
 	news.UpdatedAt = now
 
+	logger.Logger.Info().
+		Str("id", news.ID).
+		Str("title", news.Title).
+		Msg("Creating new news article")
+
 	_, err := r.client.Index().
 		Index(newsIndex).
 		Id(news.ID).
 		BodyJson(news).
 		Do(context.Background())
 
-	return err
+	if err != nil {
+		logger.Logger.Error().
+			Err(err).
+			Str("id", news.ID).
+			Msg("Failed to create news article")
+		return err
+	}
+
+	return nil
 }
 
 func (r *newsRepository) GetByID(id string) (*domain.News, error) {
@@ -99,6 +113,11 @@ func (r *newsRepository) List() ([]domain.News, error) {
 }
 
 func (r *newsRepository) Search(query string, username string) ([]domain.News, error) {
+	logger.Logger.Info().
+		Str("query", query).
+		Str("username", username).
+		Msg("Starting search operation")
+
 	// Get author by username first
 	authorResult, err := r.client.Search().
 		Index("authors").
@@ -113,6 +132,10 @@ func (r *newsRepository) Search(query string, username string) ([]domain.News, e
 		}
 		if err := json.Unmarshal(authorResult.Hits.Hits[0].Source, &author); err == nil {
 			authorID = author.ID
+			logger.Logger.Debug().
+				Str("authorID", authorID).
+				Str("username", username).
+				Msg("Found author for boosting")
 		}
 	}
 
@@ -121,19 +144,19 @@ func (r *newsRepository) Search(query string, username string) ([]domain.News, e
 		Type("best_fields").
 		TieBreaker(0.3)
 
-	// Create a function score query to boost author's content
 	functionScoreQuery := elastic.NewFunctionScoreQuery().
 		Query(multiMatchQuery)
 
 	if authorID != "" {
-		// Boost score by 2.0 if the author matches
 		functionScoreQuery.Add(
 			elastic.NewTermQuery("author_id", authorID),
 			elastic.NewWeightFactorFunction(2.0),
 		)
+		logger.Logger.Debug().
+			Str("authorID", authorID).
+			Msg("Applied author boost to search query")
 	}
 
-	// Execute the search
 	result, err := r.client.Search().
 		Index(newsIndex).
 		Query(functionScoreQuery).
@@ -141,6 +164,11 @@ func (r *newsRepository) Search(query string, username string) ([]domain.News, e
 		Do(context.Background())
 
 	if err != nil {
+		logger.Logger.Error().
+			Err(err).
+			Str("query", query).
+			Str("username", username).
+			Msg("Failed to execute search")
 		return nil, err
 	}
 
@@ -148,10 +176,20 @@ func (r *newsRepository) Search(query string, username string) ([]domain.News, e
 	for _, hit := range result.Hits.Hits {
 		var news domain.News
 		if err := json.Unmarshal(hit.Source, &news); err != nil {
+			logger.Logger.Error().
+				Err(err).
+				Str("id", hit.Id).
+				Msg("Failed to unmarshal news item")
 			return nil, err
 		}
 		newsList = append(newsList, news)
 	}
+
+	logger.Logger.Info().
+		Int("resultCount", len(newsList)).
+		Str("query", query).
+		Str("username", username).
+		Msg("Search completed successfully")
 
 	return newsList, nil
 }

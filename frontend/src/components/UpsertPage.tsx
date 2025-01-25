@@ -49,13 +49,15 @@ function UpsertPage() {
     content: '',
     authorId: '',
     tags: [],
+    imageUrl: ''
   });
   const [author, setAuthor] = useState<Author>({
     name: '',
     bio: '',
-    imageUrl: '',
+    imageUrl: ''
   });
   const [availableAuthors, setAvailableAuthors] = useState<Author[]>([]);
+  const [tagInput, setTagInput] = useState('');
   const ref = React.useRef<MDXEditorMethods>(null)
 
   useEffect(() => {
@@ -107,7 +109,7 @@ function UpsertPage() {
           await authorApi.createAuthor(author);
         }
       }
-      navigate('/');
+      navigate('/list/' + type);
     } catch (error) {
       console.error('Error saving:', error);
     }
@@ -142,6 +144,42 @@ function UpsertPage() {
       }));
     }
   };
+
+  const handleAddTag = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && tagInput.trim()) {
+      e.preventDefault();
+      const newTag = tagInput.trim();
+      const currentTags = news.tags || [];
+      if (!currentTags.includes(newTag)) {
+        setNews(prev => ({
+          ...prev,
+          tags: [...(prev.tags || []), newTag]
+        }));
+      }
+      setTagInput('');
+    }
+  };
+
+  const handleRemoveTag = (tagToRemove: string) => {
+    setNews(prev => ({
+      ...prev,
+      tags: (prev.tags || []).filter(tag => tag !== tagToRemove)
+    }));
+  };
+
+  // set the markdown value to the news.content
+  useEffect(() => {
+    if (ref.current) {
+      ref.current.setMarkdown(news.content || '');
+    }
+  }, [news.content]);
+
+  // set the markdown value to the author.bio
+  useEffect(() => {
+    if (ref.current) {
+      ref.current.setMarkdown(author.bio || '');
+    }
+  }, [author.bio]);
 
   // Define markdown plugins
   const plugins = [
@@ -239,9 +277,58 @@ function UpsertPage() {
             </div>
 
             <div className="form-group">
+              <label htmlFor="imageUrl">Image URL</label>
+              <input
+                type="url"
+                id="imageUrl"
+                name="imageUrl"
+                className="form-control"
+                value={news.imageUrl}
+                onChange={handleNewsChange}
+                placeholder="https://example.com/image.jpg"
+              />
+              {news.imageUrl && (
+                <img 
+                  src={news.imageUrl} 
+                  alt="Preview" 
+                  className="image-preview"
+                />
+              )}
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="tags">Tags</label>
+              <div className="tags-input-container">
+                <input
+                  type="text"
+                  id="tags"
+                  className="form-control"
+                  value={tagInput}
+                  onChange={(e) => setTagInput(e.target.value)}
+                  onKeyDown={handleAddTag}
+                  placeholder="Type a tag and press Enter"
+                />
+                <div className="tags-container">
+                  {(news.tags || []).map((tag) => (
+                    <span key={tag} className="tag">
+                      {tag}
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveTag(tag)}
+                        className="tag-remove"
+                      >
+                        ×
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="form-group">
               <label htmlFor="content">Content</label>
               <MDXEditor
-                markdown={news.content}
+                markdown={news.content || ''}
                 onChange={handleContentChange}
                 plugins={plugins}
                 contentEditableClassName="mdx-editor-content"
@@ -266,18 +353,7 @@ function UpsertPage() {
             </div>
 
             <div className="form-group">
-              <label htmlFor="bio">Bio</label>
-              <MDXEditor
-                markdown={author.bio || ''}
-                onChange={handleContentChange}
-                plugins={plugins}
-                contentEditableClassName="mdx-editor-content"
-                className="mdxeditor"
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="imageUrl">Image URL</label>
+              <label htmlFor="imageUrl">Profile Image URL</label>
               <input
                 type="url"
                 id="imageUrl"
@@ -285,14 +361,39 @@ function UpsertPage() {
                 className="form-control"
                 value={author.imageUrl}
                 onChange={handleAuthorChange}
+                placeholder="https://example.com/profile.jpg"
+              />
+              {author.imageUrl && (
+                <img 
+                  src={author.imageUrl} 
+                  alt="Profile Preview" 
+                  className="image-preview profile"
+                />
+              )}
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="bio">Bio</label>
+              <MDXEditor
+                markdown={author.bio || ''}
+                onChange={handleContentChange}
+                plugins={plugins}
+                contentEditableClassName="mdx-editor-content"
+                className="mdxeditor"
+                ref={ref}
               />
             </div>
           </>
         )}
 
-        <button type="submit" className="save-button">
-          {id ? 'Update' : 'Save'} {type}
-        </button>
+        <div className="form-actions">
+          <button type="button" className="cancel-button" onClick={() => navigate('/list/' + type)}>
+            Cancel
+          </button>
+          <button type="submit" className="save-button">
+            {id ? 'Update' : 'Save'} {type}
+          </button>
+        </div>
       </form>
     </div>
   );

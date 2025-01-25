@@ -16,6 +16,7 @@ const ListPage: React.FC = () => {
   }, [type]);
 
   const loadItems = async () => {
+    setItems([]);
     setLoading(true);
     try {
       if (type === 'news') {
@@ -80,7 +81,7 @@ const ListPage: React.FC = () => {
                 <>
                   <h3>{(item as News).title}</h3>
                   <div className="item-preview">
-                    {(item as News).content.substring(0, 150)}...
+                    {(item as News).content?.substring(0, 150)}...
                   </div>
                 </>
               ) : (

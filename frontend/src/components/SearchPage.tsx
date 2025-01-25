@@ -5,14 +5,20 @@ import { searchApi, SearchResult } from '../api/api';
 
 const SearchPage: React.FC = () => {
   const [query, setQuery] = useState('');
+  const [username, setUsername] = useState('');
   const [results, setResults] = useState<SearchResult[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSearch = async (searchQuery: string) => {
+    if (!username) {
+      alert('Username is required');
+      return;
+    }
+    
     setIsLoading(true);
     try {
-      const data = await searchApi.search(searchQuery);
+      const data = await searchApi.search({ q: searchQuery, username });
       setResults(data || []);
     } catch (error) {
       console.error('Error searching:', error);
@@ -30,6 +36,13 @@ const SearchPage: React.FC = () => {
     <div className="search-container">
       <h1>Multiple Kind Search</h1>
       <div className="search-box">
+        <input
+          type="text"
+          value={username}
+          onChange={(e) => setUsername(e.target.value)}
+          placeholder="Enter username..."
+          className="search-input"
+        />
         <input
           type="text"
           value={query}
