@@ -2,6 +2,7 @@ version: '3.8'
 
 services:
   elasticsearch:
+    container_name: multiple_kind_search_elasticsearch
     image: docker.elastic.co/elasticsearch/elasticsearch:7.10.2
     environment:
       - discovery.type=single-node
@@ -9,19 +10,32 @@ services:
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
     ports:
       - "9200:9200"
+    networks:
+      - multiple_kind_search_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9200"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
 
   backend:
+    container_name: multiple_kind_search_backend
     build:
       context: ./backend
       dockerfile: Dockerfile
     environment:
-      - ELASTICSEARCH_URL=http://elasticsearch:9200
+        - ELASTICSEARCH_URL=http://multiple_kind_search_elasticsearch:9200
     ports:
       - "8080:8080"
     depends_on:
-      - elasticsearch
+      elasticsearch:
+        condition: service_healthy
+    networks:
+      - multiple_kind_search_network
+
 
   frontend:
+    container_name: multiple_kind_search_frontend
     build:
       context: ./frontend
       dockerfile: Dockerfile
@@ -34,15 +48,25 @@ services:
     volumes:
       - ./frontend:/app
       - /app/node_modules
+    networks:
+      - multiple_kind_search_network
+
 
   kibana:
+    container_name: multiple_kind_search_kibana
     image: docker.elastic.co/kibana/kibana:7.10.2
     environment:
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - ELASTICSEARCH_HOSTS=http://multiple_kind_search_elasticsearch:9200
     ports:
       - "5601:5601"
     depends_on:
       - elasticsearch
+    networks:
+      - multiple_kind_search_network
+
+networks:
+  multiple_kind_search_network:
+    driver: bridge
 
 volumes:
   frontend_build:
