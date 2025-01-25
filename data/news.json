@@ -1,0 +1,58 @@
+[
+  {
+    "id": "1",
+    "title": "The Future of Cloud Computing: Trends to Watch",
+    "content": "Cloud computing continues to evolve at a rapid pace. From edge computing to serverless architectures, organizations are finding new ways to leverage cloud technologies. This article explores the latest trends and their impact on business operations.\n\nKey trends include:\n- Multi-cloud strategies\n- Edge computing adoption\n- Serverless architecture growth\n- AI/ML integration\n- Enhanced security measures",
+    "authorId": "1",
+    "tags": ["cloud", "technology", "trends"],
+    "imageUrl": "https://picsum.photos/800/400?random=1"
+  },
+  {
+    "id": "2",
+    "title": "Breakthrough in Natural Language Processing",
+    "content": "Recent advances in NLP have revolutionized how machines understand human language. This article discusses the latest developments in transformer models and their applications in various industries.\n\nKey points:\n- New transformer architectures\n- Improved language understanding\n- Real-world applications\n- Future implications",
+    "authorId": "2",
+    "tags": ["AI", "NLP", "machine-learning"],
+    "imageUrl": "https://picsum.photos/800/400?random=2"
+  },
+  {
+    "id": "3",
+    "title": "Cybersecurity Best Practices for Remote Work",
+    "content": "With remote work becoming the norm, organizations must adapt their security practices. Learn about essential security measures to protect your remote workforce and company data.\n\nTopics covered:\n- VPN security\n- Two-factor authentication\n- Endpoint protection\n- Employee training",
+    "authorId": "3",
+    "tags": ["security", "remote-work", "cybersecurity"],
+    "imageUrl": "https://picsum.photos/800/400?random=3"
+  },
+  {
+    "id": "4",
+    "title": "Designing for Accessibility: A Comprehensive Guide",
+    "content": "Creating accessible web applications is not just about compliance—it's about inclusive design. This guide covers essential principles and practical tips for building accessible web applications.\n\nKey areas:\n- WCAG guidelines\n- Semantic HTML\n- Keyboard navigation\n- Screen reader compatibility",
+    "authorId": "4",
+    "tags": ["design", "accessibility", "web-development"],
+    "imageUrl": "https://picsum.photos/800/400?random=4"
+  },
+  {
+    "id": "5",
+    "title": "Kubernetes vs Docker Swarm: A Detailed Comparison",
+    "content": "Container orchestration is crucial for modern applications. This article compares two popular solutions: Kubernetes and Docker Swarm, helping you choose the right tool for your needs.\n\nComparison points:\n- Scalability\n- Ease of use\n- Feature set\n- Community support\n- Production readiness",
+    "authorId": "5",
+    "tags": ["containers", "kubernetes", "docker", "devops"],
+    "imageUrl": "https://picsum.photos/800/400?random=5"
+  },
+  {
+    "id": "6",
+    "title": "Web Performance Optimization Techniques",
+    "content": "Performance is crucial for user experience and SEO. Learn about modern techniques to optimize your web applications for better performance.\n\nOptimization areas:\n- Code splitting\n- Lazy loading\n- Image optimization\n- Caching strategies\n- Bundle size reduction",
+    "authorId": "1",
+    "tags": ["performance", "web-development", "optimization"],
+    "imageUrl": "https://picsum.photos/800/400?random=6"
+  },
+  {
+    "id": "7",
+    "title": "The Rise of Edge Computing in IoT",
+    "content": "Edge computing is transforming how IoT devices process and analyze data. This article explores the benefits and challenges of implementing edge computing in IoT solutions.\n\nKey aspects:\n- Reduced latency\n- Bandwidth optimization\n- Privacy improvements\n- Implementation challenges",
+    "authorId": "2",
+    "tags": ["IoT", "edge-computing", "technology"],
+    "imageUrl": "https://picsum.photos/800/400?random=7"
+  }
+] 

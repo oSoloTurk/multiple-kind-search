@@ -9,8 +9,7 @@ done
 # Delete existing indices if they exist
 echo "Deleting existing indices..."
 curl -X DELETE "http://localhost:9200/authors" 2>/dev/null
-curl -X DELETE "http://localhost:9200/titles" 2>/dev/null
-curl -X DELETE "http://localhost:9200/contents" 2>/dev/null
+curl -X DELETE "http://localhost:9200/news" 2>/dev/null
 
 # Create indices with mappings
 echo "Creating indices..."
@@ -22,37 +21,25 @@ curl -X PUT "http://localhost:9200/authors" -H "Content-Type: application/json" 
       "id": { "type": "keyword" },
       "name": { "type": "text" },
       "bio": { "type": "text" },
-      "image_url": { "type": "keyword" },
-      "created_at": { "type": "date" },
-      "updated_at": { "type": "date" }
+      "imageUrl": { "type": "keyword" },
+      "createdAt": { "type": "date" },
+      "updatedAt": { "type": "date" }
     }
   }
 }'
 
-# Titles index
-curl -X PUT "http://localhost:9200/titles" -H "Content-Type: application/json" -d '{
+# News index
+curl -X PUT "http://localhost:9200/news" -H "Content-Type: application/json" -d '{
   "mappings": {
     "properties": {
       "id": { "type": "keyword" },
       "title": { "type": "text" },
-      "author_id": { "type": "keyword" },
-      "created_at": { "type": "date" },
-      "updated_at": { "type": "date" }
-    }
-  }
-}'
-
-# Contents index
-curl -X PUT "http://localhost:9200/contents" -H "Content-Type: application/json" -d '{
-  "mappings": {
-    "properties": {
-      "id": { "type": "keyword" },
       "content": { "type": "text" },
-      "author_id": { "type": "keyword" },
-      "created_at": { "type": "date" },
-      "updated_at": { "type": "date" },
+      "authorId": { "type": "keyword" },
       "tags": { "type": "keyword" },
-      "image_url": { "type": "keyword" }
+      "imageUrl": { "type": "keyword" },
+      "createdAt": { "type": "date" },
+      "updatedAt": { "type": "date" }
     }
   }
 }'
@@ -62,19 +49,17 @@ echo "Loading data..."
 # Load authors data
 jq -c '.[]' authors.json | while read -r line; do
     id=$(echo $line | jq -r '.id')
+    # Add timestamps if not present
+    line=$(echo $line | jq '. + {createdAt: (now | todate), updatedAt: (now | todate)}')
     curl -X POST "http://localhost:9200/authors/_doc/$id" -H "Content-Type: application/json" -d "$line"
 done
 
-# Load titles data
-jq -c '.[]' titles.json | while read -r line; do
+# Load news data
+jq -c '.[]' news.json | while read -r line; do
     id=$(echo $line | jq -r '.id')
-    curl -X POST "http://localhost:9200/titles/_doc/$id" -H "Content-Type: application/json" -d "$line"
-done
-
-# Load contents data
-jq -c '.[]' contents.json | while read -r line; do
-    id=$(echo $line | jq -r '.id')
-    curl -X POST "http://localhost:9200/contents/_doc/$id" -H "Content-Type: application/json" -d "$line"
+    # Add timestamps if not present
+    line=$(echo $line | jq '. + {createdAt: (now | todate), updatedAt: (now | todate)}')
+    curl -X POST "http://localhost:9200/news/_doc/$id" -H "Content-Type: application/json" -d "$line"
 done
 
 echo "Verifying data..."
@@ -82,7 +67,6 @@ echo "Verifying data..."
 # Verify the data was loaded
 echo "Document counts:"
 echo "Authors: $(curl -s -X GET "http://localhost:9200/authors/_count" | jq '.count')"
-echo "Titles: $(curl -s -X GET "http://localhost:9200/titles/_count" | jq '.count')"
-echo "Contents: $(curl -s -X GET "http://localhost:9200/contents/_count" | jq '.count')"
+echo "News: $(curl -s -X GET "http://localhost:9200/news/_count" | jq '.count')"
 
 echo "Seeding completed!" 

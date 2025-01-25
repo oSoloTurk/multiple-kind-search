@@ -1,82 +1,32 @@
 [
   {
-    "id": "auth_001",
-    "name": "Emma Thompson",
-    "bio": "Award-winning journalist with 15 years experience covering technology and innovation",
-    "image_url": "https://randomuser.me/api/portraits/women/1.jpg",
-    "created_at": "2023-01-01T00:00:00Z",
-    "updated_at": "2023-01-01T00:00:00Z"
+    "id": "1",
+    "name": "John Doe",
+    "bio": "Tech enthusiast and software engineer with over 10 years of experience in web development and cloud computing.",
+    "imageUrl": "https://randomuser.me/api/portraits/men/1.jpg"
   },
   {
-    "id": "auth_002", 
-    "name": "James Wilson",
-    "bio": "Former Silicon Valley executive turned investigative reporter",
-    "image_url": "https://randomuser.me/api/portraits/men/2.jpg",
-    "created_at": "2023-01-02T00:00:00Z",
-    "updated_at": "2023-01-02T00:00:00Z"
+    "id": "2",
+    "name": "Jane Smith",
+    "bio": "Data scientist and AI researcher specializing in machine learning and natural language processing.",
+    "imageUrl": "https://randomuser.me/api/portraits/women/1.jpg"
   },
   {
-    "id": "auth_003",
-    "name": "Sarah Chen",
-    "bio": "Data journalist specializing in climate change and environmental issues",
-    "image_url": "https://randomuser.me/api/portraits/women/3.jpg",
-    "created_at": "2023-01-03T00:00:00Z",
-    "updated_at": "2023-01-03T00:00:00Z"
+    "id": "3",
+    "name": "Mike Johnson",
+    "bio": "Cybersecurity expert focusing on application security and ethical hacking.",
+    "imageUrl": "https://randomuser.me/api/portraits/men/2.jpg"
   },
   {
-    "id": "auth_004",
-    "name": "Michael Rodriguez",
-    "bio": "Political correspondent with expertise in international relations",
-    "image_url": "https://randomuser.me/api/portraits/men/4.jpg",
-    "created_at": "2023-01-04T00:00:00Z",
-    "updated_at": "2023-01-04T00:00:00Z"
+    "id": "4",
+    "name": "Sarah Wilson",
+    "bio": "UX designer and frontend developer passionate about creating intuitive user experiences.",
+    "imageUrl": "https://randomuser.me/api/portraits/women/2.jpg"
   },
   {
-    "id": "auth_005",
-    "name": "Lisa Patel",
-    "bio": "Health and science reporter with a medical background",
-    "image_url": "https://randomuser.me/api/portraits/women/5.jpg",
-    "created_at": "2023-01-05T00:00:00Z",
-    "updated_at": "2023-01-05T00:00:00Z"
-  },
-  {
-    "id": "auth_006",
-    "name": "David Kim",
-    "bio": "Sports analyst and former professional athlete",
-    "image_url": "https://randomuser.me/api/portraits/men/6.jpg",
-    "created_at": "2023-01-06T00:00:00Z",
-    "updated_at": "2023-01-06T00:00:00Z"
-  },
-  {
-    "id": "auth_007",
-    "name": "Rachel Greene",
-    "bio": "Entertainment industry insider and cultural critic",
-    "image_url": "https://randomuser.me/api/portraits/women/7.jpg",
-    "created_at": "2023-01-07T00:00:00Z",
-    "updated_at": "2023-01-07T00:00:00Z"
-  },
-  {
-    "id": "auth_008",
-    "name": "Thomas Anderson",
-    "bio": "Cybersecurity expert and technology columnist",
-    "image_url": "https://randomuser.me/api/portraits/men/8.jpg",
-    "created_at": "2023-01-08T00:00:00Z",
-    "updated_at": "2023-01-08T00:00:00Z"
-  },
-  {
-    "id": "auth_009",
-    "name": "Julia Martinez",
-    "bio": "Economic analyst with focus on emerging markets",
-    "image_url": "https://randomuser.me/api/portraits/women/9.jpg",
-    "created_at": "2023-01-09T00:00:00Z",
-    "updated_at": "2023-01-09T00:00:00Z"
-  },
-  {
-    "id": "auth_010",
-    "name": "Robert Chang",
-    "bio": "Urban development and infrastructure specialist",
-    "image_url": "https://randomuser.me/api/portraits/men/10.jpg",
-    "created_at": "2023-01-10T00:00:00Z",
-    "updated_at": "2023-01-10T00:00:00Z"
+    "id": "5",
+    "name": "David Brown",
+    "bio": "DevOps engineer specializing in containerization and cloud infrastructure.",
+    "imageUrl": "https://randomuser.me/api/portraits/men/3.jpg"
   }
 ]
