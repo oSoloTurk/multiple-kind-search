@@ -113,10 +113,9 @@ func (r *newsRepository) List() ([]domain.News, error) {
 }
 
 func (r *newsRepository) Search(query string, username string) ([]domain.News, error) {
-	logger.Logger.Info().
-		Str("query", query).
-		Str("username", username).
-		Msg("Starting search operation")
+	log := logger.Logger.With().Str("query", query).Str("username", username).Logger()
+
+	log.Info().Msg("Starting search operation")
 
 	// Get author by username first
 	authorResult, err := r.client.Search().
@@ -132,10 +131,8 @@ func (r *newsRepository) Search(query string, username string) ([]domain.News, e
 		}
 		if err := json.Unmarshal(authorResult.Hits.Hits[0].Source, &author); err == nil {
 			authorID = author.ID
-			logger.Logger.Debug().
-				Str("authorID", authorID).
-				Str("username", username).
-				Msg("Found author for boosting")
+			log = log.With().Str("authorID", authorID).Logger()
+			log.Info().Msg("Found author for boosting")
 		}
 	}
 
@@ -144,31 +141,37 @@ func (r *newsRepository) Search(query string, username string) ([]domain.News, e
 		Type("best_fields").
 		TieBreaker(0.3)
 
-	functionScoreQuery := elastic.NewFunctionScoreQuery().
-		Query(multiMatchQuery)
+	// For ES 7.10.2, we use bool query with should clauses instead of function_score
+	boolQuery := elastic.NewBoolQuery().
+		Must(multiMatchQuery)
 
 	if authorID != "" {
-		functionScoreQuery.Add(
-			elastic.NewTermQuery("author_id", authorID),
-			elastic.NewWeightFactorFunction(2.0),
-		)
-		logger.Logger.Debug().
-			Str("authorID", authorID).
-			Msg("Applied author boost to search query")
+		// Add author boost using should clause with boost parameter
+		authorBoostQuery := elastic.NewTermQuery("authorID", authorID).Boost(2.0)
+		boolQuery.Should(authorBoostQuery)
+		log.Info().Msg("Applied author boost to search query")
+	}
+
+	querySource, err := boolQuery.Source()
+	if err != nil {
+		log.Error().Err(err).Msg("Failed to get query source")
+	} else {
+		queryJSON, err := json.Marshal(querySource)
+		if err != nil {
+			log.Error().Err(err).Msg("Failed to marshal query to JSON")
+		} else {
+			log.Info().RawJSON("query", queryJSON).Msg("Search query details")
+		}
 	}
 
 	result, err := r.client.Search().
 		Index(newsIndex).
-		Query(functionScoreQuery).
+		Query(boolQuery).
 		Size(1000).
 		Do(context.Background())
 
 	if err != nil {
-		logger.Logger.Error().
-			Err(err).
-			Str("query", query).
-			Str("username", username).
-			Msg("Failed to execute search")
+		log.Error().Err(err).Msg("Failed to execute search")
 		return nil, err
 	}
 
@@ -176,7 +179,7 @@ func (r *newsRepository) Search(query string, username string) ([]domain.News, e
 	for _, hit := range result.Hits.Hits {
 		var news domain.News
 		if err := json.Unmarshal(hit.Source, &news); err != nil {
-			logger.Logger.Error().
+			log.Error().
 				Err(err).
 				Str("id", hit.Id).
 				Msg("Failed to unmarshal news item")
@@ -185,10 +188,8 @@ func (r *newsRepository) Search(query string, username string) ([]domain.News, e
 		newsList = append(newsList, news)
 	}
 
-	logger.Logger.Info().
+	log.Info().
 		Int("resultCount", len(newsList)).
-		Str("query", query).
-		Str("username", username).
 		Msg("Search completed successfully")
 
 	return newsList, nil
