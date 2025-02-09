@@ -4,20 +4,22 @@ import (
 	"context"
 	"encoding/json"
 	"sort"
+	"strings"
 	"sync"
 
+	es "github.com/elastic/go-elasticsearch/v8"
 	"github.com/oSoloTurk/multiple-kind-search/internal/domain"
 	"github.com/oSoloTurk/multiple-kind-search/internal/logger"
-	"github.com/olivere/elastic/v7"
 )
 
 type SearchRepository struct {
-	client *elastic.Client
+	client *es.Client
 }
 
-func NewSearchRepository(client *elastic.Client) domain.SearchRepository {
+func NewSearchRepository(client *es.Client) domain.SearchRepository {
 	return &SearchRepository{client: client}
 }
+
 func (r *SearchRepository) Search(ctx context.Context, filter domain.SearchFilter) ([]domain.SearchResult, error) {
 	results := make([]domain.SearchResult, 0)
 	log := logger.Logger.With().Str("query", filter.Query).Str("username", filter.Username).Logger()
@@ -73,41 +75,69 @@ func (r *SearchRepository) Search(ctx context.Context, filter domain.SearchFilte
 }
 
 func (r *SearchRepository) SearchAuthor(ctx context.Context, filter domain.SearchFilter) ([]domain.SearchResult, error) {
-
 	// Build the search query for authors
-	multiMatchQuery := elastic.NewMultiMatchQuery(filter.Query, "name", "bio").
-		Type("best_fields").
-		TieBreaker(0.3)
+	query := map[string]interface{}{
+		"query": map[string]interface{}{
+			"multi_match": map[string]interface{}{
+				"query":       filter.Query,
+				"fields":      []string{"name", "bio"},
+				"type":        "best_fields",
+				"tie_breaker": 0.3,
+			},
+		},
+		"highlight": map[string]interface{}{
+			"fields": map[string]interface{}{
+				"name": map[string]interface{}{},
+				"bio":  map[string]interface{}{},
+			},
+			"pre_tags":  []string{"<em>"},
+			"post_tags": []string{"</em>"},
+		},
+	}
 
-	highlight := elastic.NewHighlight().
-		Field("name").
-		Field("bio").
-		PreTags("<em>").
-		PostTags("</em>")
-
-	// Execute the search query
-	searchResult, err := r.client.Search().
-		Index("authors").
-		Query(multiMatchQuery).
-		Highlight(highlight).
-		Do(ctx)
-
+	body, err := json.Marshal(query)
 	if err != nil {
 		return nil, err
 	}
 
-	// Parse the search results
+	res, err := r.client.Search(
+		r.client.Search.WithIndex("authors"),
+		r.client.Search.WithBody(strings.NewReader(string(body))),
+		r.client.Search.WithContext(ctx),
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	var result map[string]interface{}
+	if err := json.NewDecoder(res.Body).Decode(&result); err != nil {
+		return nil, err
+	}
+
+	hits := result["hits"].(map[string]interface{})["hits"].([]interface{})
 	authors := make([]domain.SearchResult, 0)
-	for _, hit := range searchResult.Hits.Hits {
+
+	for _, hit := range hits {
+		hitMap := hit.(map[string]interface{})
+		source := hitMap["_source"].(map[string]interface{})
+		highlights := hitMap["highlight"].(map[string]interface{})
+		score := hitMap["_score"].(float64)
+
 		var author domain.Author
-		if err := json.Unmarshal(hit.Source, &author); err != nil {
+		sourceBytes, err := json.Marshal(source)
+		if err != nil {
 			return nil, err
 		}
+		if err := json.Unmarshal(sourceBytes, &author); err != nil {
+			return nil, err
+		}
+
 		authors = append(authors, domain.SearchResult{
 			ID:      author.ID,
-			Title:   GetValueWithHighlight(hit.Highlight, "name", author.Name),
-			Content: GetValueWithHighlight(hit.Highlight, "bio", author.Bio),
-			Score:   *hit.Score,
+			Title:   GetValueWithHighlight(highlights, "name", author.Name),
+			Content: GetValueWithHighlight(highlights, "bio", author.Bio),
+			Score:   score,
 			Type:    domain.AuthorResultType,
 		})
 	}
@@ -116,65 +146,126 @@ func (r *SearchRepository) SearchAuthor(ctx context.Context, filter domain.Searc
 }
 
 func (r *SearchRepository) SearchNews(ctx context.Context, filter domain.SearchFilter) ([]domain.SearchResult, error) {
-	authorResult, err := r.client.Search().
-		Index("authors").
-		Query(elastic.NewMatchQuery("name", filter.Username)).
-		Size(1).
-		Do(ctx)
-
+	// First find author ID if username is provided
 	var authorID string
-	if err == nil && len(authorResult.Hits.Hits) > 0 {
-		var author struct {
-			ID string `json:"id"`
+	if filter.Username != "" {
+		authorQuery := map[string]interface{}{
+			"query": map[string]interface{}{
+				"match": map[string]interface{}{
+					"name": filter.Username,
+				},
+			},
+			"size": 1,
 		}
-		if err := json.Unmarshal(authorResult.Hits.Hits[0].Source, &author); err == nil {
-			authorID = author.ID
+
+		authorBody, err := json.Marshal(authorQuery)
+		if err != nil {
+			return nil, err
+		}
+
+		authorRes, err := r.client.Search(
+			r.client.Search.WithIndex("authors"),
+			r.client.Search.WithBody(strings.NewReader(string(authorBody))),
+			r.client.Search.WithContext(ctx),
+		)
+		if err != nil {
+			return nil, err
+		}
+		defer authorRes.Body.Close()
+
+		var authorResult map[string]interface{}
+		if err := json.NewDecoder(authorRes.Body).Decode(&authorResult); err != nil {
+			return nil, err
+		}
+
+		hits := authorResult["hits"].(map[string]interface{})["hits"].([]interface{})
+		if len(hits) > 0 {
+			hitMap := hits[0].(map[string]interface{})
+			source := hitMap["_source"].(map[string]interface{})
+			authorID = source["id"].(string)
 		}
 	}
 
-	// Build the search query
-	multiMatchQuery := elastic.NewMultiMatchQuery(filter.Query, "title", "content").
-		Type("best_fields").
-		TieBreaker(0.3)
+	// Build the search query for news
+	query := map[string]interface{}{
+		"query": map[string]interface{}{
+			"bool": map[string]interface{}{
+				"must": map[string]interface{}{
+					"multi_match": map[string]interface{}{
+						"query":       filter.Query,
+						"fields":      []string{"title", "content"},
+						"type":        "best_fields",
+						"tie_breaker": 0.3,
+					},
+				},
+			},
+		},
+		"highlight": map[string]interface{}{
+			"fields": map[string]interface{}{
+				"title":   map[string]interface{}{},
+				"content": map[string]interface{}{},
+			},
+			"pre_tags":  []string{"<em>"},
+			"post_tags": []string{"</em>"},
+		},
+	}
 
-	// For ES 7.10.2, we use bool query with should clauses instead of function_score
-	boolQuery := elastic.NewBoolQuery().
-		Must(multiMatchQuery)
-
+	// Add author boost if we have an author ID
 	if authorID != "" {
-		// Add author boost using should clause with boost parameter
-		authorBoostQuery := elastic.NewTermQuery("authorID", authorID).Boost(2.0)
-		boolQuery.Should(authorBoostQuery)
+		query["query"].(map[string]interface{})["bool"].(map[string]interface{})["should"] = map[string]interface{}{
+			"term": map[string]interface{}{
+				"authorID": map[string]interface{}{
+					"value": authorID,
+					"boost": 2.0,
+				},
+			},
+		}
 	}
 
-	highlight := elastic.NewHighlight().
-		Field("title").
-		Field("content").
-		PreTags("<em>").
-		PostTags("</em>")
-
-	result, err := r.client.Search().
-		Index("news").
-		Query(boolQuery).
-		Highlight(highlight).
-		Size(1000).
-		Do(ctx)
-
+	body, err := json.Marshal(query)
 	if err != nil {
 		return nil, err
 	}
 
+	res, err := r.client.Search(
+		r.client.Search.WithIndex("news"),
+		r.client.Search.WithBody(strings.NewReader(string(body))),
+		r.client.Search.WithContext(ctx),
+		r.client.Search.WithSize(1000),
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	var result map[string]interface{}
+	if err := json.NewDecoder(res.Body).Decode(&result); err != nil {
+		return nil, err
+	}
+
+	hits := result["hits"].(map[string]interface{})["hits"].([]interface{})
 	newsResults := make([]domain.SearchResult, 0)
-	for _, hit := range result.Hits.Hits {
+
+	for _, hit := range hits {
+		hitMap := hit.(map[string]interface{})
+		source := hitMap["_source"].(map[string]interface{})
+		highlights := hitMap["highlight"].(map[string]interface{})
+		score := hitMap["_score"].(float64)
+
 		var news domain.News
-		if err := json.Unmarshal(hit.Source, &news); err != nil {
+		sourceBytes, err := json.Marshal(source)
+		if err != nil {
 			return nil, err
 		}
+		if err := json.Unmarshal(sourceBytes, &news); err != nil {
+			return nil, err
+		}
+
 		newsResults = append(newsResults, domain.SearchResult{
 			ID:      news.ID,
-			Title:   GetValueWithHighlight(hit.Highlight, "title", news.Title),
-			Content: GetValueWithHighlight(hit.Highlight, "content", news.Content),
-			Score:   *hit.Score,
+			Title:   GetValueWithHighlight(highlights, "title", news.Title),
+			Content: GetValueWithHighlight(highlights, "content", news.Content),
+			Score:   score,
 			Type:    domain.NewsResultType,
 		})
 	}

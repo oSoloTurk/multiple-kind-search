@@ -3,12 +3,14 @@ package elasticsearch
 import (
 	"context"
 	"encoding/json"
+	"fmt"
+	"strings"
 	"time"
 
+	elastic "github.com/elastic/go-elasticsearch/v8"
 	"github.com/google/uuid"
 	"github.com/oSoloTurk/multiple-kind-search/internal/domain"
 	"github.com/oSoloTurk/multiple-kind-search/internal/logger"
-	"github.com/olivere/elastic/v7"
 )
 
 const newsIndex = "news"
@@ -34,12 +36,17 @@ func (r *newsRepository) Create(news *domain.News) error {
 		Str("title", news.Title).
 		Msg("Creating new news article")
 
-	_, err := r.client.Index().
-		Index(newsIndex).
-		Id(news.ID).
-		BodyJson(news).
-		Do(context.Background())
+	body, err := json.Marshal(news)
+	if err != nil {
+		return err
+	}
 
+	_, err = r.client.Index(
+		newsIndex,
+		strings.NewReader(string(body)),
+		r.client.Index.WithDocumentID(news.ID),
+		r.client.Index.WithContext(context.Background()),
+	)
 	if err != nil {
 		logger.Logger.Error().
 			Err(err).
@@ -52,17 +59,36 @@ func (r *newsRepository) Create(news *domain.News) error {
 }
 
 func (r *newsRepository) GetByID(id string) (*domain.News, error) {
-	result, err := r.client.Get().
-		Index(newsIndex).
-		Id(id).
-		Do(context.Background())
+	res, err := r.client.Get(
+		newsIndex,
+		id,
+		r.client.Get.WithContext(context.Background()),
+	)
+	if err != nil {
+		return nil, err
+	}
 
+	if res.IsError() {
+		return nil, fmt.Errorf("failed to get news article: %s", res.Status())
+	}
+
+	var result map[string]interface{}
+	if err := json.NewDecoder(res.Body).Decode(&result); err != nil {
+		return nil, err
+	}
+
+	source, ok := result["_source"].(map[string]interface{})
+	if !ok {
+		return nil, nil // Document not found
+	}
+
+	sourceBytes, err := json.Marshal(source)
 	if err != nil {
 		return nil, err
 	}
 
 	var news domain.News
-	if err := json.Unmarshal(result.Source, &news); err != nil {
+	if err := json.Unmarshal(sourceBytes, &news); err != nil {
 		return nil, err
 	}
 
@@ -72,38 +98,79 @@ func (r *newsRepository) GetByID(id string) (*domain.News, error) {
 func (r *newsRepository) Update(news *domain.News) error {
 	news.UpdatedAt = time.Now()
 
-	_, err := r.client.Update().
-		Index(newsIndex).
-		Id(news.ID).
-		Doc(news).
-		Do(context.Background())
+	body, err := json.Marshal(map[string]interface{}{
+		"doc": news,
+	})
+	if err != nil {
+		return err
+	}
+
+	_, err = r.client.Update(
+		newsIndex,
+		news.ID,
+		strings.NewReader(string(body)),
+		r.client.Update.WithContext(context.Background()),
+	)
 
 	return err
 }
 
 func (r *newsRepository) Delete(id string) error {
-	_, err := r.client.Delete().
-		Index(newsIndex).
-		Id(id).
-		Do(context.Background())
+	res, err := r.client.Delete(
+		newsIndex,
+		id,
+		r.client.Delete.WithContext(context.Background()),
+	)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
 
-	return err
+	return nil
 }
 
 func (r *newsRepository) List() ([]domain.News, error) {
-	result, err := r.client.Search().
-		Index(newsIndex).
-		Size(1000).
-		Do(context.Background())
+	query := map[string]interface{}{
+		"query": map[string]interface{}{
+			"match_all": map[string]interface{}{},
+		},
+		"size": 1000,
+	}
 
+	body, err := json.Marshal(query)
 	if err != nil {
 		return nil, err
 	}
 
+	res, err := r.client.Search(
+		r.client.Search.WithIndex(newsIndex),
+		r.client.Search.WithBody(strings.NewReader(string(body))),
+		r.client.Search.WithContext(context.Background()),
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	var result map[string]interface{}
+	if err := json.NewDecoder(res.Body).Decode(&result); err != nil {
+		return nil, err
+	}
+
+	hits := result["hits"].(map[string]interface{})["hits"].([]interface{})
 	newsList := make([]domain.News, 0)
-	for _, hit := range result.Hits.Hits {
+
+	for _, hit := range hits {
+		hitMap := hit.(map[string]interface{})
+		source := hitMap["_source"]
+
+		sourceBytes, err := json.Marshal(source)
+		if err != nil {
+			return nil, err
+		}
+
 		var news domain.News
-		if err := json.Unmarshal(hit.Source, &news); err != nil {
+		if err := json.Unmarshal(sourceBytes, &news); err != nil {
 			return nil, err
 		}
 		newsList = append(newsList, news)

@@ -1,10 +1,9 @@
 package elasticsearch
 
-import "github.com/olivere/elastic/v7"
-
-func GetValueWithHighlight(hit elastic.SearchHitHighlight, key string, defaultValue string) string {
+func GetValueWithHighlight(hit map[string]interface{}, key string, defaultValue string) string {
 	if value, ok := hit[key]; ok {
-		return value[0]
+		values := value.([]interface{})
+		return values[0].(string)
 	}
 	return defaultValue
 }

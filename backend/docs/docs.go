@@ -488,7 +488,7 @@ const docTemplate = `{
                         "schema": {
                             "type": "array",
                             "items": {
-                                "$ref": "#/definitions/domain.News"
+                                "$ref": "#/definitions/domain.SearchResult"
                             }
                         }
                     },
@@ -521,19 +521,19 @@ const docTemplate = `{
                 "bio": {
                     "type": "string"
                 },
-                "created_at": {
+                "createdAt": {
                     "type": "string"
                 },
                 "id": {
                     "type": "string"
                 },
-                "image_url": {
+                "imageUrl": {
                     "type": "string"
                 },
                 "name": {
                     "type": "string"
                 },
-                "updated_at": {
+                "updatedAt": {
                     "type": "string"
                 }
             }
@@ -541,19 +541,19 @@ const docTemplate = `{
         "domain.News": {
             "type": "object",
             "properties": {
-                "author_id": {
+                "authorID": {
                     "type": "string"
                 },
                 "content": {
                     "type": "string"
                 },
-                "created_at": {
+                "createdAt": {
                     "type": "string"
                 },
                 "id": {
                     "type": "string"
                 },
-                "image_url": {
+                "imageUrl": {
                     "type": "string"
                 },
                 "tags": {
@@ -565,10 +565,41 @@ const docTemplate = `{
                 "title": {
                     "type": "string"
                 },
-                "updated_at": {
+                "updatedAt": {
                     "type": "string"
                 }
             }
+        },
+        "domain.SearchResult": {
+            "type": "object",
+            "properties": {
+                "content": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "score": {
+                    "type": "number"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "type": {
+                    "$ref": "#/definitions/domain.SearchResultType"
+                }
+            }
+        },
+        "domain.SearchResultType": {
+            "type": "string",
+            "enum": [
+                "news",
+                "author"
+            ],
+            "x-enum-varnames": [
+                "NewsResultType",
+                "AuthorResultType"
+            ]
         }
     }
 }`

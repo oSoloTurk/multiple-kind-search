@@ -6,12 +6,13 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/swagger"
 
+	elastic "github.com/elastic/go-elasticsearch/v8"
+
 	"github.com/oSoloTurk/multiple-kind-search/internal/config"
 	"github.com/oSoloTurk/multiple-kind-search/internal/handler"
 	"github.com/oSoloTurk/multiple-kind-search/internal/logger"
 	"github.com/oSoloTurk/multiple-kind-search/internal/repository/elasticsearch"
 	"github.com/oSoloTurk/multiple-kind-search/internal/service"
-	"github.com/olivere/elastic/v7"
 	"github.com/spf13/cobra"
 )
 
@@ -37,10 +38,9 @@ func runAPI(cmd *cobra.Command, args []string) {
 	cfg.ServerPort = port // Override with flag value
 
 	// Initialize Elasticsearch client
-	esClient, err := elastic.NewClient(
-		elastic.SetURL(cfg.ElasticsearchURL),
-		elastic.SetSniff(false),
-	)
+	esClient, err := elastic.NewClient(elastic.Config{
+		Addresses: []string{cfg.ElasticsearchURL},
+	})
 	if err != nil {
 		log.Fatalf("Failed to create Elasticsearch client: %v", err)
 	}

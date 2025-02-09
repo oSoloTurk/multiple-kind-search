@@ -3,20 +3,21 @@ package elasticsearch
 import (
 	"context"
 	"encoding/json"
+	"strings"
 	"time"
 
+	es "github.com/elastic/go-elasticsearch/v8"
 	"github.com/google/uuid"
 	"github.com/oSoloTurk/multiple-kind-search/internal/domain"
-	"github.com/olivere/elastic/v7"
 )
 
 const authorIndex = "authors"
 
 type authorRepository struct {
-	client *elastic.Client
+	client *es.Client
 }
 
-func NewAuthorRepository(client *elastic.Client) domain.AuthorRepository {
+func NewAuthorRepository(client *es.Client) domain.AuthorRepository {
 	return &authorRepository{client: client}
 }
 
@@ -28,27 +29,53 @@ func (r *authorRepository) Create(author *domain.Author) error {
 	author.CreatedAt = now
 	author.UpdatedAt = now
 
-	_, err := r.client.Index().
-		Index(authorIndex).
-		Id(author.ID).
-		BodyJson(author).
-		Do(context.Background())
+	body, err := json.Marshal(author)
+	if err != nil {
+		return err
+	}
 
-	return err
+	res, err := r.client.Index(
+		authorIndex,
+		strings.NewReader(string(body)),
+		r.client.Index.WithDocumentID(author.ID),
+		r.client.Index.WithContext(context.Background()),
+	)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+
+	return nil
 }
 
 func (r *authorRepository) GetByID(id string) (*domain.Author, error) {
-	result, err := r.client.Get().
-		Index(authorIndex).
-		Id(id).
-		Do(context.Background())
+	res, err := r.client.Get(
+		authorIndex,
+		id,
+		r.client.Get.WithContext(context.Background()),
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
 
+	var result map[string]interface{}
+	if err := json.NewDecoder(res.Body).Decode(&result); err != nil {
+		return nil, err
+	}
+
+	source, ok := result["_source"].(map[string]interface{})
+	if !ok {
+		return nil, nil // Document not found
+	}
+
+	sourceBytes, err := json.Marshal(source)
 	if err != nil {
 		return nil, err
 	}
 
 	var author domain.Author
-	if err := json.Unmarshal(result.Source, &author); err != nil {
+	if err := json.Unmarshal(sourceBytes, &author); err != nil {
 		return nil, err
 	}
 
@@ -58,38 +85,83 @@ func (r *authorRepository) GetByID(id string) (*domain.Author, error) {
 func (r *authorRepository) Update(author *domain.Author) error {
 	author.UpdatedAt = time.Now()
 
-	_, err := r.client.Update().
-		Index(authorIndex).
-		Id(author.ID).
-		Doc(author).
-		Do(context.Background())
+	body, err := json.Marshal(map[string]interface{}{
+		"doc": author,
+	})
+	if err != nil {
+		return err
+	}
 
-	return err
+	res, err := r.client.Update(
+		authorIndex,
+		author.ID,
+		strings.NewReader(string(body)),
+		r.client.Update.WithContext(context.Background()),
+	)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+
+	return nil
 }
 
 func (r *authorRepository) Delete(id string) error {
-	_, err := r.client.Delete().
-		Index(authorIndex).
-		Id(id).
-		Do(context.Background())
+	res, err := r.client.Delete(
+		authorIndex,
+		id,
+		r.client.Delete.WithContext(context.Background()),
+	)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
 
-	return err
+	return nil
 }
 
 func (r *authorRepository) List() ([]domain.Author, error) {
-	result, err := r.client.Search().
-		Index(authorIndex).
-		Size(1000).
-		Do(context.Background())
+	query := map[string]interface{}{
+		"query": map[string]interface{}{
+			"match_all": map[string]interface{}{},
+		},
+		"size": 1000,
+	}
 
+	body, err := json.Marshal(query)
 	if err != nil {
 		return nil, err
 	}
 
+	res, err := r.client.Search(
+		r.client.Search.WithIndex(authorIndex),
+		r.client.Search.WithBody(strings.NewReader(string(body))),
+		r.client.Search.WithContext(context.Background()),
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	var result map[string]interface{}
+	if err := json.NewDecoder(res.Body).Decode(&result); err != nil {
+		return nil, err
+	}
+
+	hits := result["hits"].(map[string]interface{})["hits"].([]interface{})
 	authors := make([]domain.Author, 0)
-	for _, hit := range result.Hits.Hits {
+
+	for _, hit := range hits {
+		hitMap := hit.(map[string]interface{})
+		source := hitMap["_source"]
+
+		sourceBytes, err := json.Marshal(source)
+		if err != nil {
+			return nil, err
+		}
+
 		var author domain.Author
-		if err := json.Unmarshal(hit.Source, &author); err != nil {
+		if err := json.Unmarshal(sourceBytes, &author); err != nil {
 			return nil, err
 		}
 		authors = append(authors, author)

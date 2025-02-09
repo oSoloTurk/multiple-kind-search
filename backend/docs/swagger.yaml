@@ -3,28 +3,28 @@ definitions:
     properties:
       bio:
         type: string
-      created_at:
+      createdAt:
         type: string
       id:
         type: string
-      image_url:
+      imageUrl:
         type: string
       name:
         type: string
-      updated_at:
+      updatedAt:
         type: string
     type: object
   domain.News:
     properties:
-      author_id:
+      authorID:
         type: string
       content:
         type: string
-      created_at:
+      createdAt:
         type: string
       id:
         type: string
-      image_url:
+      imageUrl:
         type: string
       tags:
         items:
@@ -32,9 +32,30 @@ definitions:
         type: array
       title:
         type: string
-      updated_at:
+      updatedAt:
         type: string
     type: object
+  domain.SearchResult:
+    properties:
+      content:
+        type: string
+      id:
+        type: string
+      score:
+        type: number
+      title:
+        type: string
+      type:
+        $ref: '#/definitions/domain.SearchResultType'
+    type: object
+  domain.SearchResultType:
+    enum:
+    - news
+    - author
+    type: string
+    x-enum-varnames:
+    - NewsResultType
+    - AuthorResultType
 info:
   contact: {}
 paths:
@@ -351,7 +372,7 @@ paths:
           description: OK
           schema:
             items:
-              $ref: '#/definitions/domain.News'
+              $ref: '#/definitions/domain.SearchResult'
             type: array
         "400":
           description: Bad Request

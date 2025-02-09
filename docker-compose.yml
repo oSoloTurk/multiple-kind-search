@@ -3,7 +3,7 @@ version: '3.8'
 services:
   elasticsearch:
     container_name: multiple_kind_search_elasticsearch
-    image: docker.elastic.co/elasticsearch/elasticsearch:7.10.2
+    image: elasticsearch:8.17.1
     environment:
       - discovery.type=single-node
       - xpack.security.enabled=false
@@ -54,7 +54,7 @@ services:
 
   kibana:
     container_name: multiple_kind_search_kibana
-    image: docker.elastic.co/kibana/kibana:7.10.2
+    image: kibana:8.17.1
     environment:
       - ELASTICSEARCH_HOSTS=http://multiple_kind_search_elasticsearch:9200
     ports:
